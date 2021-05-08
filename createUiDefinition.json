@@ -184,18 +184,6 @@
                         }
                     },
                     {
-                        "name": "diskSnapshotSelector",
-                        "type": "Microsoft.Solutions.ResourceSelector",
-                        "label": "Select disk snapshot",
-                        "resourceType": "Microsoft.Compute/snapshots",
-                        "options": {
-                            "filter": {
-                                "subscription": "onBasics",
-                                "location": "onBasics"
-                            }
-                        }
-                    },
-                    {
                         "name": "snapshotIDJournalVolume",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Snapshot ID to use for creating Journal Volume",
