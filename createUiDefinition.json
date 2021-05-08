@@ -5,15 +5,15 @@
     "parameters": {
         "basics": [
             {
-                "name": "vmName",
+                "name": "stackName",
                 "type": "Microsoft.Common.TextBox",
-                "label": "Virtual Machine name",
-                "toolTip": "The name of the Virtual Machine.",
-                "defaultValue": "linux-vm",
+                "label": "Stack name",
+                "toolTip": "The name of the Stack name.",
+                "defaultValue": "Perforce-Studio-In-A-Box",
                 "constraints": {
                     "required": true,
                     "regex": "^[a-z0-9A-Z-]{3,79}$",
-                    "validationMessage": "The VM Name must be between 3 and 79 characters long and contain letters, numbers and hyphens only."
+                    "validationMessage": "The Stack name must be between 3 and 79 characters long and contain letters, numbers and hyphens only."
                 }
             },
             {
@@ -25,93 +25,18 @@
                 "constraints": {
                     "required": true
                 }
-            },
-            {
-                "name": "SSHCredentials",
-                "type": "Microsoft.Compute.CredentialsCombo",
-                "label": {
-                    "authenticationType": "Authentication type",
-                    "password": "Password",
-                    "confirmPassword": "Confirm password",
-                    "sshPublicKey": "SSH public key"
-                },
-                "toolTip": {
-                    "authenticationType": "Authentication Type for the Virtual Machine",
-                    "password": "Password for the Virtual Machine",
-                    "sshPublicKey": "SSH Public Key for the Virtual Machine"
-                },
-                "constraints": {
-                    "required": true
-                },
-                "options": {
-                    "hideConfirmation": false
-                },
-                "osPlatform": "Linux"
             }
         ],
         "steps": [
             {
-                "name": "VirtualMachineConfig",
-                "label": "Virtual Machine Settings",
+                "name": "VirtualNetworkConfig",
+                "label": "Virtual Network Configuration",
                 "subLabel": {
-                    "preValidation": "Configure the virtual machine's resources and settings",
+                    "preValidation": "Configure the virtual network's resources and settings",
                     "postValidation": "Done"
                 },
                 "bladeTitle": "Virtual Machine Settings",
                 "elements": [
-                    {
-                        "name": "vmSize",
-                        "type": "Microsoft.Compute.SizeSelector",
-                        "label": "Virtual machine size",
-                        "toolTip": "The size of virtual machine to provision.",
-                        "recommendedSizes": [
-                            "Standard_D2_v2",
-                            "Standard_A2_v2"
-                        ],
-                        "osPlatform": "Linux",
-                        "count": "1"
-                    },
-                    {
-                        "name": "storageAccount",
-                        "type": "Microsoft.Storage.StorageAccountSelector",
-                        "label": "Diagnostic storage account",
-                        "toolTip": "Storage Account for the Virtual Machine's diagnostics",
-                        "defaultValue": {
-                            "type": "Standard_LRS",
-                            "name": "[concat(replace(basics('vmName'), '-', ''), take(replace(guid(), '-', ''), 10))]"
-                        },
-                        "constraints": {
-                            "allowedTypes": [
-                                "Standard_LRS",
-                                "Standard_GRS"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "publicIpAddress",
-                        "type": "Microsoft.Network.PublicIpAddressCombo",
-                        "label": {
-                            "publicIpAddress": "Public IP Address for the VM",
-                            "domainNameLabel": "DNS Prefix for the public IP Address"
-                        },
-                        "toolTip": {
-                            "publicIpAddress": "Public IP Address for the VM",
-                            "domainNameLabel": "DNS Prefix for the public IP Address, must be globally unique"
-                        },
-                        "defaultValue": {
-                            "publicIpAddressName": "[concat(basics('vmName'), '-ip')]",
-                            "domainNameLabel": "[concat(basics('vmName'), '-', take(replace(guid(), '-', ''), 10))]"
-                        },
-                        "options": {
-                            "hideExisting": false,
-                            "hideNone": false
-                        },
-                        "constraints": {
-                            "required": {
-                                "domainNameLabel": true
-                            }
-                        }
-                    },
                     {
                         "name": "virtualNetwork",
                         "type": "Microsoft.Network.VirtualNetworkCombo",
@@ -134,7 +59,43 @@
                             "subnet1": {
                                 "label": "Subnet",
                                 "defaultValue": {
-                                    "name": "Subnet-1",
+                                    "name": "PublicSubnet0",
+                                    "addressPrefixSize": "/24"
+                                },
+                                "constraints": {
+                                    "minAddressPrefixSize": "/24",
+                                    "minAddressCount": 12,
+                                    "requireContiguousAddresses": false
+                                }
+                            },
+                            "subnet2": {
+                                "label": "Subnet",
+                                "defaultValue": {
+                                    "name": "PublicSubnet1",
+                                    "addressPrefixSize": "/24"
+                                },
+                                "constraints": {
+                                    "minAddressPrefixSize": "/24",
+                                    "minAddressCount": 12,
+                                    "requireContiguousAddresses": false
+                                }
+                            },
+                            "subnet3": {
+                                "label": "Subnet",
+                                "defaultValue": {
+                                    "name": "PrivateSubnet0",
+                                    "addressPrefixSize": "/24"
+                                },
+                                "constraints": {
+                                    "minAddressPrefixSize": "/24",
+                                    "minAddressCount": 12,
+                                    "requireContiguousAddresses": false
+                                }
+                            },
+                            "subnet4": {
+                                "label": "Subnet",
+                                "defaultValue": {
+                                    "name": "PrivateSubnet1",
                                     "addressPrefixSize": "/24"
                                 },
                                 "constraints": {
@@ -144,38 +105,667 @@
                                 }
                             }
                         }
+                    },
+                    {
+                        "name": "ipRangeToPermitFrom",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "IP range to Permit from",
+                        "defaultValue": "1.1.1.1/32",
+                        "toolTip": "Input your public IP address in CIDR notation. Example: 162.244.43.80/32. Use a service like whatismyipaddress.com to find your public IP address.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\/(\\d|[1-2]\\d|3[0-2])$",
+                            "validationMessage": "IP range must be a valid CIDR range of the form x.x.x.x/x"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "PerforceServerConfig",
+                "label": "Perforce Server Configuration",
+                "subLabel": {
+                    "preValidation": "Configure the Perforce Server's resources and settings",
+                    "postValidation": "Done"
+                },
+                "bladeTitle": "Perforce Server Configuration",
+                "elements": [
+                    {
+                        "name": "SSHKeyPairCredentials",
+                        "type": "Microsoft.Compute.CredentialsCombo",
+                        "label": {
+                            "authenticationType": "Authentication type",
+                            "password": "Password",
+                            "confirmPassword": "Confirm password",
+                            "sshPublicKey": "SSH public key"
+                        },
+                        "toolTip": {
+                            "authenticationType": "Authentication Type for Perforce Server",
+                            "password": "Password for the Perforce Server",
+                            "sshPublicKey": "SSH Public Key for the Perforce Server"
+                        },
+                        "constraints": {
+                            "required": true
+                        },
+                        "options": {
+                            "hidePassword": true,
+                            "hideConfirmation": true
+                        },
+                        "osPlatform": "Linux"
+                    },
+                    {
+                        "name": "P4DVMSize",
+                        "type": "Microsoft.Compute.SizeSelector",
+                        "label": "P4D instance type",
+                        "toolTip": "Select P4D server VM SKU",
+                        "recommendedSizes": [
+                            "Standard_D2_v2",
+                            "Standard_A2_v2"
+                        ],
+                        "osPlatform": "Linux",
+                        "count": "1"
+                    },
+                    {
+                        "name": "deployFromScratchOrSnapshot",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Deploy P4 From Scratch/Snapshot",
+                        "defaultValue": "Scratch",
+                        "toolTip": "Select to choose from scratch or snapshot",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Scratch",
+                                    "value": "scratch"
+                                },
+                                {
+                                    "label": "Snapshot",
+                                    "value": "snapshot"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "diskSnapshotSelector",
+                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "label": "Select disk snapshot",
+                        "resourceType": "Microsoft.Compute/snapshots",
+                        "options": {
+                            "filter": {
+                                "subscription": "onBasics",
+                                "location": "onBasics"
+                            }
+                        }
+                    },
+                    {
+                        "name": "snapshotIDJournalVolume",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Snapshot ID to use for creating Journal Volume",
+                        "defaultValue": "",
+                        "toolTip": "Optionally select to restore P4D Journal volume from a snapshot",
+                        "constraints": {
+                            "required": false,
+                            "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,30}$",
+                            "validationMessage": "Snapshot ID must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
+                        }
+                    },
+                    {
+                        "name": "snapshotIDLogVolume",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Snapshot ID to use for creating Log Volume",
+                        "defaultValue": "",
+                        "toolTip": "Optionally select to restore P4D Log volume from a snapshot",
+                        "constraints": {
+                            "required": false,
+                            "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,30}$",
+                            "validationMessage": "Snapshot ID must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
+                        }
+                    },
+                    {
+                        "name": "snapshotIDMetadataVolume",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Snapshot ID to use for creating Metadata Volume",
+                        "defaultValue": "",
+                        "toolTip": "Optionally select to restore P4D Metadata volume from a snapshot",
+                        "constraints": {
+                            "required": false,
+                            "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,30}$",
+                            "validationMessage": "Snapshot ID must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
+                        }
+                    },
+                    {
+                        "name": "depotVolumeType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Type of managed disks",
+                        "visible": "",
+                        "defaultValue": "Standard SSD",
+                        "toolTip": "Select either Standard HDD or Standard SSD.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "StandardHDD",
+                                    "value": "Standard HDD"
+                                },
+                                {
+                                    "label": "StandardSSD",
+                                    "value": "Standard SSD"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "depotVolumeSize",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Depot volume size",
+                        "defaultValue": "512",
+                        "toolTip": "The size (GB) of the Managed disk attached for Depot.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\d+$",
+                            "validationMessage": "Value must be numeric and greater than or equal to 0"
+                        }
+                    },
+                    {
+                        "name": "logVolumeSize",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Log volume size",
+                        "defaultValue": "50",
+                        "toolTip": "The size (GB) of the Managed disk attached for Log.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\d+$",
+                            "validationMessage": "Value must be numeric and greater than or equal to 0"
+                        }
+                    },
+                    {
+                        "name": "logVolumeType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Type of managed disks",
+                        "visible": "",
+                        "defaultValue": "Standard SSD",
+                        "toolTip": "Select either Standard HDD or Standard SSD.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Standard HDD",
+                                    "value": "Standard HDD"
+                                },
+                                {
+                                    "label": "Standard SSD",
+                                    "value": "Standard SSD"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "metadataVolumeType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Type of managed disks",
+                        "visible": "",
+                        "defaultValue": "Standard SSD",
+                        "toolTip": "Select either Standard HDD or Standard SSD.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Standard HDD",
+                                    "value": "Standard HDD"
+                                },
+                                {
+                                    "label": "Standard SSD",
+                                    "value": "Standard SSD"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "metadataVolumeSize",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Metadata volume size",
+                        "defaultValue": "64",
+                        "toolTip": "The size (GB) of the Managed disk attached for Log.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\d+$",
+                            "validationMessage": "Value must be numeric and greater than or equal to 0"
+                        }
+                    },
+                    {
+                        "name": "metadataProvisionedIOPS",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Metadata provisioned IOPS",
+                        "defaultValue": "100",
+                        "toolTip": "Set the provisioned IOPs between 100 and 64000. Only set if you are choosing io1, io2, or gp3 for your metadata volume type. If using gp2 leave empty.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\d+$",
+                            "validationMessage": "Value must be numeric and greater than or equal to 0"
+                        }
+                    },
+                    {
+                        "name": "journalVolumeType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Type of managed disks",
+                        "visible": "",
+                        "defaultValue": "Standard SSD",
+                        "toolTip": "Select either Standard HDD or Standard SSD.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Standard HDD",
+                                    "value": "Standard HDD"
+                                },
+                                {
+                                    "label": "Standard SSD",
+                                    "value": "Standard SSD"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "journalVolumeSize",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Journal volume size",
+                        "defaultValue": "64",
+                        "toolTip": "The size (GB) of the Managed disk attached for Log.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\d+$",
+                            "validationMessage": "Value must be numeric and greater than or equal to 0"
+                        }
+                    },
+                    {
+                        "name": "journalProvisionedIOPS",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Journal provisioned IOPS",
+                        "defaultValue": "100",
+                        "toolTip": "Set the provisioned IOPs between 100 and 64000. Only set if you are choosing io1, io2, or gp3 for your metadata volume type. If using gp2 leave empty.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\d+$",
+                            "validationMessage": "Value must be numeric and greater than or equal to 0"
+                        }
+                    },
+                    {
+                        "name": "preUserdata",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Pre Userdata",
+                        "defaultValue": "",
+                        "toolTip": "Userdata to run before the default P4 userdata.",
+                        "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "constraints": {
+                            "required": false,
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "postUserdata",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Post Userdata",
+                        "defaultValue": "",
+                        "toolTip": "Userdata to run after the default P4 userdata.",
+                        "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "constraints": {
+                            "required": false,
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    }
+                ]
+            },
+            {
+                "name": "PerforceWindowsWorkstation",
+                "label": "Perforce Virtualized Windows Workstation Configuration",
+                "subLabel": {
+                    "preValidation": "Configure the Perforce Virtualized Workstation's resources and settings",
+                    "postValidation": "Done"
+                },
+                "bladeTitle": "Perforce Virtualized Windows Workstation Configuration",
+                "elements": [
+                    {
+                        "name": "deployWindowsWorkstation",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Deploy Virtualized Windows Workstation",
+                        "defaultValue": "true",
+                        "toolTip": "Optionally select to deploy the Windows Workstation",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "true",
+                                    "value": "true"
+                                },
+                                {
+                                    "label": "false",
+                                    "value": "false"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "windowsVMSize",
+                        "type": "Microsoft.Compute.SizeSelector",
+                        "label": "Windows instance type",
+                        "toolTip": "Select Windows Workstation VM SKU",
+                        "recommendedSizes": [
+                            "Standard_NV6",
+                            "Standard_NV12"
+                        ],
+                        "osPlatform": "Windows",
+                        "count": "1"
+                    },
+                    {
+                        "name": "windowsRootVolumeSize",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Windows instance root volume size",
+                        "defaultValue": "150",
+                        "toolTip": "Provide the size of the root volume - The size (GB) of the Managed disk.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\d+$",
+                            "validationMessage": "Value must be numeric and greater than or equal to 0"
+                        }
+                    },
+                    {
+                        "name": "preUserdata",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Pre Userdata",
+                        "defaultValue": "",
+                        "toolTip": "Userdata to run before the default Workstation userdata.",
+                        "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "constraints": {
+                            "required": false,
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "postUserdata",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Post Userdata",
+                        "defaultValue": "",
+                        "toolTip": "Userdata to run after the default Workstation userdata.",
+                        "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "constraints": {
+                            "required": false,
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    }
+                ]
+            },
+            {
+                "name": "HansoftConfig",
+                "label": "Hansoft Configuration",
+                "subLabel": {
+                    "preValidation": "Configure the Hansoft resources and settings",
+                    "postValidation": "Done"
+                },
+                "bladeTitle": "Hansoft Configuration",
+                "elements": [
+                    {
+                        "name": "deployHansoft",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Deploy Hansoft",
+                        "defaultValue": "true",
+                        "toolTip": "Optionally select to deploy Hansoft",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "true",
+                                    "value": "true"
+                                },
+                                {
+                                    "label": "false",
+                                    "value": "false"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "hansoftVMSize",
+                        "type": "Microsoft.Compute.SizeSelector",
+                        "label": "Hansoft instance type",
+                        "toolTip": "Select Hansoft VM SKU",
+                        "recommendedSizes": [
+                            "Standard_F8s_v2",
+                            "Standard_F16s_v2"
+                        ],
+                        "osPlatform": "Linux",
+                        "count": "1"
+                    },
+                    {
+                        "name": "hansoftRootVolumeSize",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Hansoft instance root volume size",
+                        "defaultValue": "100",
+                        "toolTip": "Provide the size of the Hansoft root volume - The size (GB) of the Managed disk.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\d+$",
+                            "validationMessage": "Value must be numeric and greater than or equal to 0"
+                        }
+                    },
+                    {
+                        "name": "preUserdata",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Pre Userdata",
+                        "defaultValue": "",
+                        "toolTip": "Userdata to run before the default Hansoft userdata.",
+                        "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "constraints": {
+                            "required": false,
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "postUserdata",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Post Userdata",
+                        "defaultValue": "",
+                        "toolTip": "Userdata to run after the default Hansoft userdata.",
+                        "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "constraints": {
+                            "required": false,
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    }
+                ]
+            },
+            {
+                "name": "SwarmConfig",
+                "label": "Swarm Configuration",
+                "subLabel": {
+                    "preValidation": "Configure the Swarm resources and settings",
+                    "postValidation": "Done"
+                },
+                "bladeTitle": "Swarm Configuration",
+                "elements": [
+                    {
+                        "name": "deploySwarm",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Deploy Swarm",
+                        "defaultValue": "true",
+                        "toolTip": "Optionally select to deploy Swarm",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "true",
+                                    "value": "true"
+                                },
+                                {
+                                    "label": "false",
+                                    "value": "false"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "swarmVMSize",
+                        "type": "Microsoft.Compute.SizeSelector",
+                        "label": "Swarm instance type",
+                        "toolTip": "Select Swarm VM SKU",
+                        "recommendedSizes": [
+                            "Standard_F8s_v2",
+                            "Standard_F16s_v2"
+                        ],
+                        "osPlatform": "Linux",
+                        "count": "1"
+                    },
+                    {
+                        "name": "swarmRootVolumeSize",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Swarm instance root volume size",
+                        "defaultValue": "100",
+                        "toolTip": "Provide the size of the Swarm root volume - The size (GB) of the Managed disk.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\d+$",
+                            "validationMessage": "Value must be numeric and greater than or equal to 0"
+                        }
+                    },
+                    {
+                        "name": "preUserdata",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Pre Userdata",
+                        "defaultValue": "",
+                        "toolTip": "Userdata to run before the default Swarm userdata.",
+                        "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "constraints": {
+                            "required": false,
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "postUserdata",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Post Userdata",
+                        "defaultValue": "",
+                        "toolTip": "Userdata to run after the default Swarm userdata.",
+                        "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "constraints": {
+                            "required": false,
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    }
+                ]
+            },
+            {
+                "name": "OtherParams",
+                "label": "Other parameters",
+                "subLabel": {
+                    "preValidation": "Configure the Other parameters and settings",
+                    "postValidation": "Done"
+                },
+                "bladeTitle": "Other parameters",
+                "elements": [
+                    {
+                        "name": "environment",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Environment",
+                        "defaultValue": "dev",
+                        "toolTip": "Provide an environment name that will be used in resource names and tagging. Min 3, max 20",
+                        "constraints": {
+                            "required": false,
+                            "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,4}$",
+                            "validationMessage": "Environment must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
+                        }
                     }
                 ]
             }
         ],
         "outputs": {
-
             "location": "[location()]",
-            "vmName": "[basics('vmName')]",
+            "stackName": "[basics('stackName')]",
             "adminUsername": "[basics('adminUsername')]",
-            "authenticationType": "[basics('SSHCredentials').authenticationType]",
-            "adminPasswordOrKey": "[coalesce(basics('SSHCredentials').password, basics('SSHCredentials').sshPublicKey)]",
-
-            "vmSize": "[steps('VirtualMachineConfig').vmSize]",
-            "storageNewOrExisting": "[steps('VirtualMachineConfig').storageAccount.newOrExisting]",
-            "storageAccountName": "[steps('VirtualMachineConfig').storageAccount.name]",
-            "storageAccountType": "[steps('VirtualMachineConfig').storageAccount.type]",
-            "storageAccountResourceGroupName": "[steps('VirtualMachineConfig').storageAccount.resourceGroup]",
-
-            "virtualNetworkNewOrExisting": "[steps('VirtualMachineConfig').virtualNetwork.newOrExisting]",
-            "virtualNetworkName": "[steps('VirtualMachineConfig').virtualNetwork.name]",
-            "addressPrefixes": "[steps('VirtualMachineConfig').virtualNetwork.addressPrefixes]",
-            "subnetName": "[steps('VirtualMachineConfig').virtualNetwork.subnets.subnet1.name]",
-            "subnetPrefix": "[steps('VirtualMachineConfig').virtualNetwork.subnets.subnet1.addressPrefix]",
-            "virtualNetworkResourceGroupName": "[steps('VirtualMachineConfig').virtualNetwork.resourceGroup]",
-
-            "publicIpNewOrExisting": "[steps('VirtualMachineConfig').publicIpAddress.newOrExistingOrNone]",
-            "publicIpName": "[steps('VirtualMachineConfig').publicIpAddress.name]",
-            "publicIpDns": "[steps('VirtualMachineConfig').publicIpAddress.domainNameLabel]",
-            "publicIpResourceGroupName": "[steps('VirtualMachineConfig').publicIpAddress.resourceGroup]",
-            "publicIPAllocationMethod": "[steps('VirtualMachineConfig').publicIpAddress.publicIPAllocationMethod]",
-            "publicIpSku": "[steps('VirtualMachineConfig').publicIpAddress.sku]"
-
+            "vnetNewOrExisting": "[steps('VirtualNetworkConfig').virtualNetwork.newOrExisting]",
+            "vnetName": "[steps('VirtualNetworkConfig').virtualNetwork.name]",
+            "vnetAddressPrefixes": "[steps('VirtualNetworkConfig').virtualNetwork.addressPrefixes]",
+            "publicSubnet0Name": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet1.name]",
+            "publicSubnet0": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet1.addressPrefix]",
+            "publicSubnet1Name": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet2.name]",
+            "publicSubnet1": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet2.addressPrefix]",
+            "privateSubnet0Name": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet3.name]",
+            "privateSubnet0": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet3.addressPrefix]",
+            "privateSubnet1Name": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet4.name]",
+            "privateSubnet1": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet4.addressPrefix]",
+            "vnetResourceGroupName": "[steps('VirtualNetworkConfig').virtualNetwork.resourceGroup]",
+            "nsgIPRangeToPermit": "[steps('VirtualNetworkConfig').ipRangeToPermitFrom]",
+            "authenticationType": "[steps('PerforceServerConfig').SSHKeyPairCredentials.authenticationType]",
+            "adminPasswordOrKey": "[coalesce(steps('PerforceServerConfig').SSHKeyPairCredentials.password, steps('PerforceServerConfig').SSHKeyPairCredentials.sshPublicKey)]",
+            "p4dVMSize": "[steps('PerforceServerConfig').P4DVMSize]",
+            "snapshotIDArchiveVolume": "[steps('PerforceServerConfig').snapshotIDArchiveVolume]",
+            "snapshotIDJournalVolume": "[steps('PerforceServerConfig').snapshotIDJournalVolume]",
+            "snapshotIDLogVolume": "[steps('PerforceServerConfig').snapshotIDLogVolume]",
+            "snapshotIDMetadataVolume": "[steps('PerforceServerConfig').snapshotIDMetadataVolume]",
+            "depotVolumeType": "[steps('PerforceServerConfig').depotVolumeType]",
+            "depotVolumeSize": "[steps('PerforceServerConfig').depotVolumeSize]",
+            "logVolumeType": "[steps('PerforceServerConfig').logVolumeType]",
+            "logVolumeSize": "[steps('PerforceServerConfig').logVolumeSize]",
+            "metadataVolumeType": "[steps('PerforceServerConfig').metadataVolumeType]",
+            "metadataVolumeSize": "[steps('PerforceServerConfig').metadataVolumeSize]",
+            "metadataProvisionedIOPS": "[steps('PerforceServerConfig').metadataProvisionedIOPS]",
+            "journalVolumeType": "[steps('PerforceServerConfig').journalVolumeType]",
+            "journalVolumeSize": "[steps('PerforceServerConfig').journalVolumeSize]",
+            "journalProvisionedIOPS": "[steps('PerforceServerConfig').journalProvisionedIOPS]",
+            "p4dPreUserdata": "[steps('PerforceServerConfig').preUserdata]",
+            "p4dPostUserdata": "[steps('PerforceServerConfig').postUserdata]",
+            "deployWindowsWorkstation": "[steps('PerforceWindowsWorkstation').deployWindowsWorkstation]",
+            "windowsVMSize": "[steps('PerforceWindowsWorkstation').windowsVMSize]",
+            "windowsRootVolumeSize": "[steps('PerforceWindowsWorkstation').windowsRootVolumeSize]",
+            "windowsPreUserdata": "[steps('PerforceWindowsWorkstation').preUserdata]",
+            "windowsPostUserdata": "[steps('PerforceWindowsWorkstation').postUserdata]",
+            "deployHansoft": "[steps('HansoftConfig').deployHansoft]",
+            "hansoftVMSize": "[steps('HansoftConfig').hansoftVMSize]",
+            "hansoftRootVolumeSize": "[steps('HansoftConfig').hansoftRootVolumeSize]",
+            "hansoftPreUserdata": "[steps('HansoftConfig').preUserdata]",
+            "hansoftPostUserdata": "[steps('HansoftConfig').postUserdata]",
+            "swarmVMSize": "[steps('SwarmConfig').swarmVMSize]",
+            "swarmRootVolumeSize": "[steps('SwarmConfig').swarmRootVolumeSize]",
+            "swarmPreUserdata": "[steps('SwarmConfig').preUserdata]",
+            "swarmPostUserdata": "[steps('SwarmConfig').postUserdata]",
+            "environment": "[steps('OtherParams').environment]"
         }
     }
 }
