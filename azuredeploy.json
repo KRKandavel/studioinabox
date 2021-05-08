@@ -2,413 +2,639 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "location": {
-        "type": "string",
-        "defaultValue": "[resourceGroup().location]",
-        "metadata": {
-          "description": "Location for the resources."
-        }
-      },
-      "vmName": {
-        "type": "string",
-        "defaultValue": "linux-vm",
-        "metadata": {
-          "description": "Name for the Virtual Machine."
-        }
-      },
-      "adminUsername": {
-        "type": "string",
-        "metadata": {
-          "description": "User name for the Virtual Machine."
-        }
-      },
-      "authenticationType": {
-        "type": "string",
-        "defaultValue": "sshPublicKey",
-        "allowedValues": [
-          "password",
-          "sshPublicKey"
-        ],
-        "metadata": {
-          "description": "Type of authentication to use on the Virtual Machine."
-        }
-      },
-      "adminPasswordOrKey": {
-        "type": "securestring",
-        "metadata": {
-          "description": "Password or ssh key for the Virtual Machine."
-        }
-      },
-      "vmSize": {
-        "type": "string",
-        "defaultValue": "Standard_A2_v2",
-        "metadata": {
-          "description": "Size for the Virtual Machine."
-        }
-      },
-      "storageNewOrExisting": {
-        "type": "string",
-        "defaultValue": "new",
-        "allowedValues": [
-          "new",
-          "existing"
-        ],
-        "metadata": {
-          "description": "Determines whether or not a new storage account should be provisioned."
-        }
-      },
-      "storageAccountName": {
-        "type": "string",
-        "defaultValue": "[concat('storage', uniqueString(resourceGroup().id))]",
-        "metadata": {
-          "description": "Name of the storage account"
-        }
-      },
-      "storageAccountType": {
-        "type": "string",
-        "defaultValue": "Standard_LRS",
-        "metadata": {
-          "description": "Storage account type"
-        }
-      },
-      "storageAccountResourceGroupName": {
-        "type": "string",
-        "defaultValue": "[resourceGroup().name]",
-        "metadata": {
-          "description": "Name of the resource group for the existing storage account"
-        }
-      },
-      "virtualNetworkNewOrExisting": {
-        "type": "string",
-        "defaultValue": "new",
-        "allowedValues": [
-          "new",
-          "existing"
-        ],
-        "metadata": {
-          "description": "Determines whether or not a new virtual network should be provisioned."
-        }
-      },
-      "virtualNetworkName": {
-        "type": "string",
-        "defaultValue": "VirtualNetwork",
-        "metadata": {
-          "description": "Name of the virtual network"
-        }
-      },
-      "addressPrefixes": {
-        "type": "array",
-        "defaultValue": [
-          "10.0.0.0/16"
-        ],
-        "metadata": {
-          "description": "Address prefix of the virtual network"
-        }
-      },
-      "subnetName": {
-        "type": "string",
-        "defaultValue": "default",
-        "metadata": {
-          "description": "Name of the subnet"
-        }
-      },
-      "subnetPrefix": {
-        "type": "string",
-        "defaultValue": "10.0.0.0/24",
-        "metadata": {
-          "description": "Subnet prefix of the virtual network"
-        }
-      },
-      "virtualNetworkResourceGroupName": {
-        "type": "string",
-        "defaultValue": "[resourceGroup().name]",
-        "metadata": {
-          "description": "Name of the resource group for the existing virtual network"
-        }
-      },
-      "publicIpNewOrExisting": {
-        "type": "string",
-        "defaultValue": "new",
-        "allowedValues": [
-          "none",
-          "new",
-          "existing"
-        ],
-        "metadata": {
-          "description": "Determines whether or not a new public ip should be provisioned."
-        }
-      },
-      "publicIpName": {
-        "type": "string",
-        "defaultValue": "PublicIp",
-        "metadata": {
-          "description": "Name of the public ip address"
-        }
-      },
-      "publicIpDns": {
-        "type": "string",
-        "defaultValue": "[concat('linux-vm-', uniqueString(resourceGroup().id))]",
-        "metadata": {
-          "description": "DNS of the public ip address for the VM"
-        }
-      },
-      "publicIpResourceGroupName": {
-        "type": "string",
-        "defaultValue": "[resourceGroup().name]",
-        "metadata": {
-          "description": "Name of the resource group for the public ip address"
-        }
-      },
-      "publicIpAllocationMethod": {
-        "type": "string",
-        "defaultValue": "Dynamic",
-        "allowedValues": [
-          "Dynamic",
-          "Static",
-          ""
-        ],
-        "metadata": {
-          "description": "Allocation method for the public ip address"
-        }
-      },
-      "publicIpSku": {
-        "type": "string",
-        "defaultValue": "Basic",
-        "allowedValues": [
-          "Basic",
-          "Standard",
-          ""
-        ],
-        "metadata": {
-          "description": "Name of the resource group for the public ip address"
-        }
-      },
-      "_artifactsLocation": {
-        "type": "string",
-        "metadata": {
-          "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for the resources."
+            }
         },
-        "defaultValue": "[deployment().properties.templateLink.uri]" 
-      },
-      "_artifactsLocationSasToken": {
-        "type": "securestring",
-        "metadata": {
-          "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+        "environment": {
+            "defaultValue": "dev",
+            "type": "String"
         },
-        "defaultValue": ""
-      }
+        "primaryZones": {
+            "defaultValue": "1",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the primary zones"
+            }
+        },
+        "secondaryZones": {
+            "defaultValue": "1",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the secondary zones"
+            }
+        },
+        "customRoleCreate": {
+            "type": "string",
+            "defaultValue": "no",
+            "allowedValues": [
+                "no",
+                "yes"
+            ],
+            "metadata": {
+                "description": "Determines whether or not a new custom rule should be created."
+            }
+        },
+        "vnetName": {
+            "defaultValue": "HXVNET",
+            "type": "String"
+        },
+        "vnetCIDR": {
+            "defaultValue": "10.0.0.0/16",
+            "type": "String"
+        },
+        "publicSubnet0Name": {
+            "defaultValue": "PublicSubnet0",
+            "type": "String"
+        },
+        "publicSubnet0": {
+            "defaultValue": "10.0.0.0/24",
+            "type": "String"
+        },
+        "publicSubnet1Name": {
+            "defaultValue": "PublicSubnet1",
+            "type": "String"
+        },
+        "publicSubnet1": {
+            "defaultValue": "10.0.1.0/24",
+            "type": "String"
+        },
+        "privateSubnet0Name": {
+            "defaultValue": "PrivateSubnet0",
+            "type": "String"
+        },
+        "privateSubnet0": {
+            "defaultValue": "10.0.2.0/24",
+            "type": "String"
+        },
+        "privateSubnet1Name": {
+            "defaultValue": "PrivateSubnet1",
+            "type": "String"
+        },
+        "privateSubnet1": {
+            "defaultValue": "10.0.3.0/24",
+            "type": "String"
+        },
+        "accessSourceCIDR": {
+            "defaultValue": "1.1.1.1/32",
+            "type": "String"
+        },
+        "hxcoreVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
+            }
+        },
+        "hxcoreOS": {
+            "type": "string",
+            "allowedValues": [
+                "Ubuntu 18.04 LTS",
+                "CentOS 7.x",
+                "RHEL 7.x"
+            ],
+            "defaultValue": "Ubuntu 18.04 LTS",
+            "metadata": {
+                "description": "The operating system of the VM."
+            }
+        },
+        "depotDiskName": {
+            "type": "string",
+            "defaultValue": "depotDisk",
+            "metadata": {
+                "description": "Name of the depot disk"
+            }
+        },
+        "logDiskName": {
+            "type": "string",
+            "defaultValue": "logDisk",
+            "metadata": {
+                "description": "Name of the log disk"
+            }
+        },
+        "metadataDiskName": {
+            "type": "string",
+            "defaultValue": "metadataDisk",
+            "metadata": {
+                "description": "Name of the metadata disk"
+            }
+        },
+        "journalDiskName": {
+            "type": "string",
+            "defaultValue": "journalDisk",
+            "metadata": {
+                "description": "Name of the journal disk"
+            }
+        },
+        "hxcoredataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "hxcoreScriptFilename": {
+            "type": "string",
+            "defaultValue": "configure-linux.sh"
+        },
+        "p4PreUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for p4PreUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "p4PostUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for p4PostUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "hansoftVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
+            }
+        },
+        "hansoftOS": {
+            "type": "string",
+            "allowedValues": [
+                "Ubuntu 18.04 LTS",
+                "CentOS 7.x",
+                "RHEL 7.x"
+            ],
+            "defaultValue": "Ubuntu 18.04 LTS",
+            "metadata": {
+                "description": "The operating system of the VM."
+            }
+        },
+        "hansoftDataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "hansoftPreUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for hansoftPreUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "hansoftPostUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for hansoftPostUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "swarmVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
+            }
+        },
+        "swarmOS": {
+            "type": "string",
+            "allowedValues": [
+                "Ubuntu 18.04 LTS",
+                "CentOS 7.x",
+                "RHEL 7.x"
+            ],
+            "defaultValue": "Ubuntu 18.04 LTS",
+            "metadata": {
+                "description": "The operating system of the VM."
+            }
+        },
+        "swarmDataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "swarmPreUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for swarmPreUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "swarmPostUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for swarmPostUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "workstationVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
+            }
+        },
+        "workstationOS": {
+            "type": "string",
+            "allowedValues": [
+                "Windows Server 2019"
+            ],
+            "defaultValue": "Windows Server 2019",
+            "metadata": {
+                "description": "The operating system of the VM."
+            }
+        },
+        "workstationDataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "workstationPreUserData": {
+            "type": "string",
+            "defaultValue": "Write-Host \"Running PreUserData\" | Out-File c:\\azuredata.out -Append",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "workstationPostUserData": {
+            "type": "string",
+            "defaultValue": "Write-Host \"Running PostUserData\" | Out-File c:\\azuredata.out -Append",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Admin username for Virtual Machine"
+            }
+        },
+        "authenticationType": {
+            "type": "string",
+            "defaultValue": "sshPublicKey",
+            "allowedValues": [
+                "password",
+                "sshPublicKey"
+            ],
+            "metadata": {
+                "description": "Type of authentication to use on the Virtual Machine."
+            }
+        },
+        "adminPasswordOrKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "helix_admin_password": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Helix Core Server superuser password (user perforce)."
+            }
+        },
+        "p4Port": {
+            "type": "int",
+            "defaultValue": 1666,
+            "metadata": {
+                "description": "P4PORT value to connect to server (via ssl)"
+            }
+        },
+        "swarmPort": {
+            "type": "int",
+            "defaultValue": 80,
+            "metadata": {
+                "description": "Port for Swarm (Apache) to be setup on."
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            },
+            "defaultValue": ""
+        }
     },
     "variables": {
-      "nicName": "[concat(parameters('vmName'), '-nic')]",
-      "linuxConfiguration": {
-        "disablePasswordAuthentication": true,
-        "ssh": {
-          "publicKeys": [
-            {
-              "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-              "keyData": "[parameters('adminPasswordOrKey')]"
+        //disk snapshot IDs
+        "demoContentMapping": {
+            "node": {
+                "P4ArchiveSnapshotID": "",
+                "P4JournalSnapshotID": "",
+                "P4LogSnapshotID": "",
+                "P4MetadataSnapshotID": "",
+                "P4PreUserData": "",
+                "P4PostUserData": "",
+                "SwarmPreUserData": "",
+                "SwarmPostUserData": "",
+                "HansoftPreUserData": "",
+                "HansoftPostUserData": "",
+                "WorkstationPreUserData": "",
+                "WorkstationPostUserData": ""
+            },
+            "prod": {
+                "instanceSize": "Large",
+                "instanceCount": 4
             }
-          ]
-        }
-      },
-      "publicIpAddressId": {
-        "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
-      },
-      "networkSecurityGroupName": "nsg-ssh",
-      "fileToBeCopied": "FileToBeCopied.txt",
-      "scriptFolder": "scripts",
-      "scriptFileName": "copyfilefromazure.sh",
-      "scriptArgs": "[concat('-a ', uri(parameters('_artifactsLocation'), '.'), ' -t \"', parameters('_artifactsLocationSasToken'), '\" -p ', variables('scriptFolder'), ' -f ', variables('fileToBeCopied'))]"
-    },
-    "resources": [
-      {
-        "apiVersion": "2020-05-01",
-        "name": "pid-00000000-0000-0000-0000-000000000000",
-        "type": "Microsoft.Resources/deployments",
-        "properties": {
-          "mode": "Incremental",
-          "template": {
-            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-            "contentVersion": "1.0.0.0",
-            "resources": []
-          }
-        }
-      },
-      {
-        "condition": "[equals(parameters('storageNewOrExisting'), 'new')]",
-        "type": "Microsoft.Storage/storageAccounts",
-        "apiVersion": "2019-06-01",
-        "name": "[parameters('storageAccountName')]",
-        "location": "[parameters('location')]",
-        "kind": "Storage",
-        "sku": {
-          "name": "[parameters('storageAccountType')]"
-        }
-      },
-      {
-        "condition": "[equals(parameters('publicIpNewOrExisting'), 'new')]",
-        "type": "Microsoft.Network/publicIPAddresses",
-        "apiVersion": "2020-05-01",
-        "name": "[parameters('publicIpName')]",
-        "location": "[parameters('location')]",
-        "sku": {
-          "name": "[parameters('publicIpSku')]"
-        },    
-        "properties": {
-          "publicIPAllocationMethod": "[parameters('publicIpAllocationMethod')]",
-          "dnsSettings": {
-            "domainNameLabel": "[parameters('publicIpDns')]"
-          }
-        }
-      },
-      {
-        "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
-        "type": "Microsoft.Network/virtualNetworks",
-        "apiVersion": "2020-05-01",
-        "name": "[parameters('virtualNetworkName')]",
-        "location": "[parameters('location')]",
-        "properties": {
-          "addressSpace": {
-            "addressPrefixes": "[parameters('addressPrefixes')]"
-          },
-          "subnets": [
+        },
+        // Linked Template URIs
+        "rbacCustomRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('IAM/rbacCustomRole.json', parameters('_artifactsLocationSasToken')))]",
+        "rbacAssignRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('IAM/rbacAssignRole.json', parameters('_artifactsLocationSasToken')))]",
+        "storageAccountTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Storage/storageAccount.json', parameters('_artifactsLocationSasToken')))]",
+        "managedDiskTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Storage/createManagedDisk.json', parameters('_artifactsLocationSasToken')))]",
+        "networkTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/virtualNetwork.json', parameters('_artifactsLocationSasToken')))]",
+        "securityGroupTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/securityGroup.json', parameters('_artifactsLocationSasToken')))]",
+        "publicIPTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/publicIP.json', parameters('_artifactsLocationSasToken')))]",
+        "natGWTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/natGateway.json', parameters('_artifactsLocationSasToken')))]",
+        "networkInterfaceTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/networkInterface.json', parameters('_artifactsLocationSasToken')))]",
+        "linuxVMCustomDataTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/linuxVMCustomData.json', parameters('_artifactsLocationSasToken')))]",
+        "linuxVMandMultiDiskTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/linuxVMandMultiDisk.json', parameters('_artifactsLocationSasToken')))]",
+        "windowsVMCustomDataTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/windowsVMCustomData.json', parameters('_artifactsLocationSasToken')))]",
+        "linuxVirtualMachineTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/linuxVirtualMachine.json', parameters('_artifactsLocationSasToken')))]",
+        "linuxCustomScriptTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/linuxCustomScript.json', parameters('_artifactsLocationSasToken')))]",
+        "windowsVirtualMachineTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/windowsVirtualMachine.json', parameters('_artifactsLocationSasToken')))]",
+        "windowsCustomScriptTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/windowsCustomScript.json', parameters('_artifactsLocationSasToken')))]",
+        "windowsVMCustomScriptTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/windowsVMCustomScript.json', parameters('_artifactsLocationSasToken')))]",
+        // Common Security Rules
+        "securityRulesCommon": [
             {
-              "name": "[parameters('subnetName')]",
-              "properties": {
-                "addressPrefix": "[parameters('subnetPrefix')]"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "name": "[variables('networkSecurityGroupName')]",
-        "type": "Microsoft.Network/networkSecurityGroups",
-        "apiVersion": "2020-05-01",
-        "location": "[parameters('location')]",
-        "properties": {
-          "securityRules": [
-            {
-              "name": "default-allow-ssh",
-              "properties": {
-                "priority": 1000,
+                "name": "Inbound1",
+                "direction": "Inbound",
+                "priority": 100,
                 "sourceAddressPrefix": "*",
-                "protocol": "Tcp",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
                 "destinationPortRange": "22",
                 "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound2",
                 "direction": "Inbound",
+                "priority": 200,
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "443",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound3",
+                "direction": "Inbound",
+                "priority": 300,
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "1666",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound4",
+                "direction": "Inbound",
+                "priority": 400,
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound5",
+                "direction": "Inbound",
+                "priority": 500,
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "50256",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound6",
+                "direction": "Inbound",
+                "priority": 600,
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound7",
+                "direction": "Inbound",
+                "priority": 700,
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "8443",
+                "access": "Allow",
+                "protocol": "Tcp"
+            }
+        ],
+        // Linux security rules
+        "securityRulesLinux": [
+            {
+                "name": "default-allow-22",
+                "priority": 1000,
+                "access": "Allow",
+                "direction": "Inbound",
+                "destinationPortRange": "22",
+                "protocol": "Tcp",
+                "sourceAddressPrefix": "[parameters('accessSourceCIDR')]",
                 "sourcePortRange": "*",
                 "destinationAddressPrefix": "*"
-              }
             }
-          ]
-        }
-      },
-      {
-        "apiVersion": "2020-05-01",
-        "type": "Microsoft.Network/networkInterfaces",
-        "name": "[variables('nicName')]",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-          "[parameters('publicIpName')]",
-          "[parameters('virtualNetworkName')]",
-          "[variables('networkSecurityGroupName')]"
         ],
-        "properties": {
-          "ipConfigurations": [
+        // Windows security rules
+        "securityRulesWindows": [
             {
-              "name": "ipconfig1",
-              "properties": {
-                "privateIPAllocationMethod": "Dynamic",
-                "subnet": {
-                  "id": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets/', parameters('virtualNetworkName'), parameters('subnetName'))]"
-                },
-                "publicIPAddress": "[if(not(equals(parameters('publicIpNewOrExisting'), 'none')), variables('publicIpAddressId') , json('null'))]"
-              }
+                "name": "nsgRule1",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "[parameters('accessSourceCIDR')]",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 2000,
+                "direction": "Inbound"
             }
-          ],
-          "networkSecurityGroup": {
-            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-          }
-        }
-      },
-      {
-        "apiVersion": "2020-06-01",
-        "type": "Microsoft.Compute/virtualMachines",
-        "name": "[parameters('vmName')]",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-          "[parameters('storageAccountName')]",
-          "[variables('nicName')]"
         ],
-        "properties": {
-          "hardwareProfile": {
-            "vmSize": "[parameters('vmSize')]"
-          },
-          "osProfile": {
-            "computerName": "[parameters('vmName')]",
-            "adminUsername": "[parameters('adminUsername')]",
-            "adminPassword": "[parameters('adminPasswordOrKey')]",
-            "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
-          },
-          "storageProfile": {
-            "imageReference": {
-              "publisher": "Canonical",
-              "offer": "UbuntuServer",
-              "sku": "16.04-LTS",
-              "version": "latest"
-            },
-            "osDisk": {
-              "caching": "ReadWrite",
-              "createOption": "FromImage"
-            }
-          },
-          "networkProfile": {
-            "networkInterfaces": [
-              {
-                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
-              }
-            ]
-          },
-          "diagnosticsProfile": {
-            "bootDiagnostics": {
-              "enabled": true,
-              "storageUri": "[reference(resourceId(parameters('storageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), '2018-02-01').primaryEndpoints.blob]"
-            }
-          }
-        },
-        "resources": [
-          {
-            "type": "extensions",
-            "name": "configScript",
-            "apiVersion": "2020-06-01",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-              "[parameters('vmName')]"
-            ],
+        // All security rules
+        "securityRulesAll": "[concat(variables('securityRulesCommon'), variables('securityRulesLinux'), variables('securityRulesWindows'))]",
+        // Snapshot IDs
+        "depotDiskSnapshot": "/subscriptions/cc52d2b2-77d2-45ff-aec9-da553c829eef/resourceGroups/STUDIO-SNAPSHOT/providers/Microsoft.Compute/snapshots/depotDiskSnapshot",
+        "logDiskSnapshot": "/subscriptions/cc52d2b2-77d2-45ff-aec9-da553c829eef/resourceGroups/STUDIO-SNAPSHOT/providers/Microsoft.Compute/snapshots/logDiskSnapshot",
+        "metadataDiskSnapshot": "/subscriptions/cc52d2b2-77d2-45ff-aec9-da553c829eef/resourceGroups/STUDIO-SNAPSHOT/providers/Microsoft.Compute/snapshots/metadataDiskSnapshot",
+        "journalDiskSnapshot": "/subscriptions/cc52d2b2-77d2-45ff-aec9-da553c829eef/resourceGroups/STUDIO-SNAPSHOT/providers/Microsoft.Compute/snapshots/journalDiskSnapshot",
+        // Userdata scripts & commands
+        "P4PreUserData": "[concat(
+'',            
+            parameters('p4PreUserData'),
+''
+)]",
+        "P4PostUserData": "[concat(
+'
+            mv /opt/perforce/etc/swarm-trigger.conf /opt/perforce/etc/swarm-trigger-original.conf
+            cat <<EOT >> /opt/perforce/etc/swarm-trigger.conf
+              SWARM_HOST=''http://10.0.0.71''
+              SWARM_TOKEN=''C02E4B53-A155-920C-A152-988C37D2F700''
+              ADMIN_USER=''''
+              ADMIN_TICKET_FILE=''''
+              P4_PORT=''''
+              P4=''p4''
+              EXEMPT_FILE_COUNT=0
+              EXEMPT_EXTENSIONS=''''
+              VERIFY_SSL=1
+              TIMEOUT=30
+              IGNORE_TIMEOUT=0
+              IGNORE_NOSERVER=0
+            EOT
+',            
+            parameters('p4PostUserData'),
+''
+)]",
+        "HansoftPreUserData": "[concat(
+'',
+            parameters('hansoftPreUserData'),
+''
+)]",
+        "HansoftPostUserData": "[concat(
+'',
+            parameters('hansoftPostUserData'),
+''
+)]",
+        "SwarmPreUserData": "[concat(
+'',
+            parameters('swarmPreUserData'),
+''
+)]",
+        "SwarmPostUserData": "[concat(
+'
+            # If we are creating a swarm instance create triggers in P4D
+            # I am putting this userdata in swarm so that the triggers only get created if swarm gets created
+            cat <<EOT >> /tmp/triggers.cfg
+            Triggers:
+              swarm.job form-commit job \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t job           -v %formname%\"
+              swarm.user form-commit user \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t user          -v %formname%\"
+              swarm.userdel form-delete user \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t userdel       -v %formname%\"
+              swarm.group form-commit group \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t group         -v %formname%\"
+              swarm.groupdel form-delete group \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t groupdel      -v %formname%\"
+              swarm.changesave form-save change \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t changesave    -v %formname%\"
+              swarm.shelve shelve-commit //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t shelve        -v %change%\"
+              swarm.commit change-commit //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t commit        -v %change%\"
+              swarm.shelvedel shelve-delete //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t shelvedel     -v %change% -w %client% -u %user% -d %quote%%clientcwd%^^^%quote% -a %quote%%argsQuoted%%quote% -s %quote%%serverVersion%%quote%\"
+              swarm.enforce change-submit //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t checkenforced -v %change% -u %user%\"
+              swarm.strict change-content //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t checkstrict   -v %change% -u %user%\"
+              swarm.shelvesub shelve-submit //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t checkshelve   -v %change% -u %user%\"
+            EOT
+            cat /tmp/triggers.cfg | /opt/perforce/bin/p4 triggers -i
+            rm /tmp/triggers.cfg  
+
+            # create a swarm token that can be used from p4d triggers
+            # TODO: Swarm does NOT create a token P4D can use until a user logins AND clicks on their profile icon and About Swarm
+            # work around this by pre creating the expected dir structure and pre create a token P4D is expecting to use
+            mkdir -p /opt/perforce/swarm/data/queue/tokens/
+            touch /opt/perforce/swarm/data/queue/tokens/C02E4B53-A155-920C-A152-988C37D2F700
+            chown -R www-data:www-data /opt/perforce/swarm/data/queue
+',
+            parameters('swarmPostUserData'),
+''
+)]",
+
+        "WorkstationPreUserData": "[concat(
+'
+            # For SIAB set the windows password to the instance ID so that the password can be retrieved via CloudFormation outputs
+            $instanceId = Get-EC2InstanceMetadata -Category InstanceId
+            net user Administrator \"$instanceId\"
+', 
+            parameters('workstationPreUserData')
+)]",
+        "WorkstationPostUserData": "[concat(
+            parameters('workstationPostUserData'),
+'
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"For a new Hansoft database the credentials to connect via the Hansoft client will be:\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"Username: administrator\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"Password: Hansoft EC2 Instance ID\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"The above credentials can be used to create additional users\"
+'
+)]",
+
+        "p4CustomData": "[concat(
+            variables('P4PreUserData'), '\n', 
+            variables('P4PostUserData'), '\n'
+        )]",
+        "p4CmdToRun": "sudo cp /var/lib/cloud/instance/user-data.txt /var/lib/cloud/instance/user-data.sh; sudo chmod +x /var/lib/cloud/instance/user-data.sh;sudo bash /var/lib/cloud/instance/user-data.sh",
+        "hansoftCustomData": "[concat(
+            variables('HansoftPreUserData'), '\n', 
+            variables('HansoftPostUserData'), '\n'
+        )]",
+        "hansoftCmdToRun": "sudo cp /var/lib/cloud/instance/user-data.txt /var/lib/cloud/instance/user-data.sh; sudo chmod +x /var/lib/cloud/instance/user-data.sh;sudo bash /var/lib/cloud/instance/user-data.sh",
+        "swarmCustomData": "[concat(
+            variables('SwarmPreUserData'), '\n', 
+            variables('SwarmPostUserData'), '\n'
+        )]",
+        "swarmCmdToRun": "sudo cp /var/lib/cloud/instance/user-data.txt /var/lib/cloud/instance/user-data.sh; sudo chmod +x /var/lib/cloud/instance/user-data.sh;sudo bash /var/lib/cloud/instance/user-data.sh",
+        "workstationCustomData": "[concat(
+            variables('WorkstationPreUserData'), '\n', 
+            variables('WorkstationPostUserData'), '\n'
+        )]",
+        "workstationCmdToRun": "powershell -ExecutionPolicy unrestricted -NoProfile -NonInteractive -command \"cp c:/azuredata/customdata.bin c:/azuredata/install.ps1; c:/azuredata/install.ps1\""
+
+        //"scriptFolder": "scripts",
+        //"scriptFileName": "copyfilefromazure.sh",
+        //"scriptArgs": "[concat('-a ', uri(parameters('_artifactsLocation'), '.'), ' -t \"', parameters('_artifactsLocationSasToken'), '\" -p ', variables('scriptFolder'), ' -f ', variables('fileToBeCopied'))]"
+        //"roleName": "[guid(parameters('principalId'), variables(parameters('builtInRoleType')), parameters('storageName'))]"
+        //"assignRoleWorkstationName": "[resourceId('Microsoft.Authorization/roleAssignments', concat(resourceGroup().name, '-windowsWorkstation'), '2015-07-01', 'full'))]"
+        //"assignRoleWorkstation": "[if(equals(parameters('vmIdentitySetting'), 'None'), 'None', reference(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), '2019-07-01', 'full').identity.principalId)]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2020-05-01",
+            "name": "pid-00000000-0000-0000-0000-000000000000",
+            "type": "Microsoft.Resources/deployments",
             "properties": {
-              "publisher": "Microsoft.Azure.Extensions",
-              "type": "CustomScript",
-              "typeHandlerVersion": "2.0",
-              "autoUpgradeMinorVersion": true,
-              "settings": {
-                "fileUris": [
-                  "[uri(parameters('_artifactsLocation'), concat('scripts/copyfilefromazure.sh', parameters('_artifactsLocationSasToken')))]"
-                ]
-              },
-              "protectedSettings": {
-                "commandToExecute": "[concat('bash ', variables('scriptFileName'), ' ', variables('scriptArgs'))]"
-              }
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": []
+                }
             }
-          }
-        ]
-      }
-    ],
-    "outputs": {
-      "ssh-command": {
-        "type": "string",
-        "value": "[if(equals(parameters('publicIpNewOrExisting'), 'none'), 'no public ip, vnet access only', concat('ssh ', parameters('adminUsername'), '@', reference(resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2018-04-01').dnsSettings.fqdn))]"
-      }
-    }
-  }
-  
+        }
+    ]
+}
