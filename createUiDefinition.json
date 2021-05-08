@@ -184,6 +184,18 @@
                         }
                     },
                     {
+                        "name": "storageSelector",
+                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "label": "Select storage snapshots",
+                        "resourceType": "Microsoft.Compute/snapshots",
+                        "options": {
+                            "filter": {
+                                "subscription": "onBasics",
+                                "location": "onBasics"
+                            }
+                        }
+                    },                    
+                    {
                         "name": "snapshotIDArchiveVolume",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Snapshot ID to use for creating Archive Volume",
