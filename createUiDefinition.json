@@ -434,18 +434,18 @@
                 ]
             },
             {
-                "name": "PerforceWindowsWorkstation",
-                "label": "Perforce Virtualized Windows Workstation Configuration",
+                "name": "WindowsWorkStationConfig",
+                "label": "Windows Workstation Configuration",
                 "subLabel": {
-                    "preValidation": "Configure the Perforce Virtualized Workstation's resources and settings",
+                    "preValidation": "Configure the Windows Workstation's resources and settings",
                     "postValidation": "Done"
                 },
-                "bladeTitle": "Perforce Virtualized Windows Workstation Configuration",
+                "bladeTitle": "Windows Workstation Configuration",
                 "elements": [
                     {
                         "name": "deployWindowsWorkstation",
                         "type": "Microsoft.Common.OptionsGroup",
-                        "label": "Deploy Virtualized Windows Workstation",
+                        "label": "Deploy Windows Workstation",
                         "defaultValue": "true",
                         "toolTip": "Optionally select to deploy the Windows Workstation",
                         "constraints": {
@@ -763,11 +763,11 @@
             "journalProvisionedIOPS": "[steps('PerforceServerConfig').journalProvisionedIOPS]",
             "p4dPreUserdata": "[steps('PerforceServerConfig').preUserdata]",
             "p4dPostUserdata": "[steps('PerforceServerConfig').postUserdata]",
-            "deployWindowsWorkstation": "[steps('PerforceWindowsWorkstation').deployWindowsWorkstation]",
-            "windowsVMSize": "[steps('PerforceWindowsWorkstation').windowsVMSize]",
-            "windowsRootVolumeSize": "[steps('PerforceWindowsWorkstation').windowsRootVolumeSize]",
-            "windowsPreUserdata": "[steps('PerforceWindowsWorkstation').preUserdata]",
-            "windowsPostUserdata": "[steps('PerforceWindowsWorkstation').postUserdata]",
+            "deployWindowsWorkstation": "[steps('WindowsWorkstationConfig').deployWindowsWorkstation]",
+            "windowsVMSize": "[steps('WindowsWorkstationConfig').windowsVMSize]",
+            "windowsRootVolumeSize": "[steps('WindowsWorkstationConfig').windowsRootVolumeSize]",
+            "windowsPreUserdata": "[steps('WindowsWorkstationConfig').preUserdata]",
+            "windowsPostUserdata": "[steps('WindowsWorkstationConfig').postUserdata]",
             "deployHansoft": "[steps('HansoftConfig').deployHansoft]",
             "hansoftVMSize": "[steps('HansoftConfig').hansoftVMSize]",
             "hansoftRootVolumeSize": "[steps('HansoftConfig').hansoftRootVolumeSize]",
