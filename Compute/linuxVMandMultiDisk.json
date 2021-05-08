@@ -1,0 +1,274 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for the resources."
+            }
+        },
+        "vmName": {
+            "type": "string",
+            "defaultValue": "hxcore"
+        },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
+            }
+        },
+        "nicName": {
+            "type": "string",
+            "defaultValue": "hxnic"
+        },
+        "OS": {
+            "type": "string",
+            "allowedValues": [
+                "Ubuntu 18.04 LTS",
+                "CentOS 7.x",
+                "RHEL 7.x"
+            ],
+            "defaultValue": "CentOS 7.x",
+            "metadata": {
+                "description": "The operating system of the VM."
+            }
+        },
+        "dataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Admin username for Virtual Machine"
+            }
+        },
+        "authenticationType": {
+            "type": "string",
+            "defaultValue": "sshPublicKey",
+            "allowedValues": [
+                "password",
+                "sshPublicKey"
+            ],
+            "metadata": {
+                "description": "Type of authentication to use on the Virtual Machine."
+            }
+        },
+        "adminPasswordOrKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "depotDiskName": {
+            "type": "string",
+            "defaultValue": "depotDisk",
+            "metadata": {
+                "description": "Name of the depot disk"
+            }
+        },
+        "logDiskName": {
+            "type": "string",
+            "defaultValue": "logDisk",
+            "metadata": {
+                "description": "Name of the log disk"
+            }
+        },
+        "metadataDiskName": {
+            "type": "string",
+            "defaultValue": "metadataDisk",
+            "metadata": {
+                "description": "Name of the metadata disk"
+            }
+        },
+        "journalDiskName": {
+            "type": "string",
+            "defaultValue": "journalDisk",
+            "metadata": {
+                "description": "Name of the journal disk"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": "hxstore",
+            "metadata": {
+                "description": "Name of the storage account"
+            }
+        },
+        "vmIdentitySetting": {
+            "type": "string",
+            "defaultValue": "None",
+            "allowedValues": [
+                "None",
+                "SystemAssigned"
+            ],
+            "metadata": {
+                "description": "Determines whether or not managed identity should be configured."
+            }
+        },
+        "scriptFolder": {
+            "type": "string",
+            "defaultValue": "Scripts"
+        },
+        "scriptFilename": {
+            "type": "string",
+            "defaultValue": "configure-linux.sh"
+        },
+        "scriptParameters": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            },
+            "defaultValue": ""
+        },
+        "customData": {
+            "type": "string",
+            "defaultValue": "echo customData",
+            "metadata": {
+                "description": "String passed down to the Virtual Machine."
+            }
+        }
+    },
+    "variables": {
+        "imageReference": {
+            "Ubuntu 18.04 LTS": {
+                "publisher": "Canonical",
+                "offer": "UbuntuServer",
+                "sku": "18.04-LTS",
+                "version": "latest"
+            },
+            "CentOS 7.x": {
+                "publisher": "OpenLogic",
+                "offer": "CentOS-LVM",
+                "sku": "7-LVM",
+                "version": "latest"
+            },
+            "RHEL 7.x": {
+                "publisher": "RedHat",
+                "offer": "RHEL",
+                "sku": "7-LVM",
+                "version": "latest"
+            }
+        },
+        "dataDiskSize": "[parameters('dataDiskSize')]",
+        "linuxConfiguration": {
+            "disablePasswordAuthentication": "[if(equals(parameters('authenticationType'), 'password'), 'false', 'true')]",
+            "ssh": {
+                "publicKeys": [
+                    {
+                        "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                        "keyData": "[parameters('adminPasswordOrKey')]"
+                    }
+                ]
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('vmName')]",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+            ],
+            "identity": {
+                "type": "[parameters('vmIdentitySetting')]"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('vmName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPasswordOrKey')]",
+                    "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]",
+                    "customData": "[base64(parameters('customData'))]"
+                },
+                "storageProfile": {
+                    "imageReference": "[variables('imageReference')[parameters('OS')]]",
+                    "osDisk": {
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[parameters('depotDiskName')]",
+                            "createOption": "attach",
+                            "managedDisk": {
+                                "id": "[resourceId('Microsoft.Compute/disks/', parameters('depotDiskName'))]"
+                            }
+                        },
+                        {
+                            "lun": 1,
+                            "name": "[parameters('logDiskName')]",
+                            "createOption": "attach",
+                            "managedDisk": {
+                                "id": "[resourceId('Microsoft.Compute/disks/', parameters('logDiskName'))]"
+                            }
+                        },
+                        {
+                            "lun": 2,
+                            "name": "[parameters('metadataDiskName')]",
+                            "createOption": "attach",
+                            "managedDisk": {
+                                "id": "[resourceId('Microsoft.Compute/disks/', parameters('metadataDiskName'))]"
+                            }
+                        },
+                        {
+                            "lun": 3,
+                            "name": "[parameters('journalDiskName')]",
+                            "createOption": "attach",
+                            "managedDisk": {
+                                "id": "[resourceId('Microsoft.Compute/disks/', parameters('journalDiskName'))]"
+                            }
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), '2018-02-01').primaryEndpoints.blob]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+        },
+        "vmPrincipalID": {
+            "type": "string",
+            "value": "[if(equals(parameters('vmIdentitySetting'), 'None'), 'None', reference(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), '2019-07-01', 'full').identity.principalId)]"
+        }
+    }
+}

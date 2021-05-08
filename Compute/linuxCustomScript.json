@@ -1,0 +1,134 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for the resources."
+            }
+        },
+        "runCmdOrScript": {
+            "type": "string",
+            "defaultValue": "Command",
+            "allowedValues": [
+                "Command",
+                "Script"
+            ],
+            "metadata": {
+                "description": "Determines whether to run Command or Script on target VM."
+            }
+        },
+        "vmName": {
+            "type": "string",
+            "defaultValue": "hxcore"
+        },
+        "commandToRun": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "scriptFolder": {
+            "type": "string",
+            "defaultValue": "Scripts"
+        },
+        "scriptFilename": {
+            "type": "string",
+            "defaultValue": "configure-linux.sh"
+        },
+        "scriptParameters": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            },
+            "defaultValue": ""
+        }
+    },
+    "variables": {
+        //        "scriptFolder": "[parameters('scriptFolder')]",
+        //        "scriptArgs": "[concat('-a ', uri(parameters('_artifactsLocation'), '.'), ' -t \"', parameters('_artifactsLocationSasToken'), '\" -p ', variables('scriptFolder'), ' -f ', variables('scriptFileName'))]"
+        //        "LinuxScriptParameters": "[concat(' -w ''', parameters('helix_admin_password'), ''' -p ''', parameters('p4Port'), ''' -s ''', parameters('swarmPort'), '''')]",
+
+        "LinCmdWrapper": "[concat('', parameters('CommandToRun'))]",
+
+        "scriptFileName": "[parameters('scriptFilename')]",
+        "scriptPath": "[concat(parameters('scriptFolder'), '/', parameters('scriptFilename'))]",
+        "linuxscripturi": "[uri(parameters('_artifactsLocation'), concat(variables('scriptPath'), parameters('_artifactsLocationSasToken')))]",
+        //        "LinuxScriptParameters": "[concat('-w ', parameters('helix_admin_password'), ' -p ', parameters('p4Port'), ' -s ', parameters('swarmPort'))]",
+        "LinuxScriptParameters": "[parameters('scriptParameters')]",
+        "LinScriptWrapper": "[concat('bash ', variables('scriptFileName'), ' ', variables('LinuxScriptParameters'))]"
+    },
+    "resources": [
+        {
+            "condition": "[equals(parameters('runCmdOrScript'), 'Command')]",
+            "name": "[concat(parameters('vmName'), '/CustomCommand')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "location": "[parameters('location')]",
+            "apiVersion": "2020-12-01",
+            "dependsOn": [
+            ],
+            "tags": {
+                "displayName": "linuxappdeploy"
+            },
+            "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "skipDos2Unix": false,
+                    "timestamp": 123456789,
+                    "fileUris": []
+                },
+                "protectedSettings": {
+                    "commandToExecute": "[variables('LinCmdWrapper')]"
+                }
+            }
+        },
+        {
+            "condition": "[equals(parameters('runCmdOrScript'), 'Script')]",
+            "name": "[concat(parameters('vmName'), '/CustomScript')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "location": "[parameters('location')]",
+            "apiVersion": "2020-12-01",
+            "dependsOn": [
+            ],
+            "tags": {
+                "displayName": "linuxappdeploy"
+            },
+            "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "skipDos2Unix": false,
+                    "timestamp": 123456789,
+                    "fileUris": [
+                        "[variables('linuxscripturi')]"
+                    ]
+                },
+                "protectedSettings": {
+                    "commandToExecute": "[variables('LinScriptWrapper')]"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+        }
+    }
+}

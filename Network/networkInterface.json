@@ -1,0 +1,93 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for the resources."
+            }
+        },
+        "resourceGroupName": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "Name of the resource group for the existing virtual network"
+            }
+        },
+        "vnetName": {
+            "defaultValue": "HXVNET",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Virtual Network for the NIC"
+            }
+        },
+        "subnetName": {
+            "defaultValue": "PublicSubnet0",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the NAT gateway zones"
+            }
+        },
+        "nicName": {
+            "type": "string",
+            "defaultValue": "hxnic"
+        },
+        "publicIPName": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the NAT gateway zones"
+            }
+        },
+        "nsgName": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the NSG to apply in NIC"
+            }
+        }
+    },
+    "variables": {
+        "publicIpExists": "[if(equals(parameters('publicIpName'), ''), 'none', 'exists')]",
+        "nsgExists": "[if(equals(parameters('nsgName'), ''), 'none', 'exists')]",
+        "publicIpAddressId": {
+            "id": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+        },
+        "networkSecurityGroupId": {
+            "id": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('nicName')]",
+            "apiVersion": "2019-04-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('subnetName'))]"
+                            },
+                            "publicIPAddress": "[if(not(equals(variables('publicIpExists'), 'none')), variables('publicIpAddressId'), json('null'))]"
+                        }
+                    }
+                ],
+                "networkSecurityGroup": "[if(not(equals(variables('nsgExists'), 'none')), variables('networkSecurityGroupId'), json('null'))]"
+            }
+        }
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
+        }
+    }
+}
