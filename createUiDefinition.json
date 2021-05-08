@@ -184,6 +184,18 @@
                         }
                     },
                     {
+                        "name": "snapshotIDArchiveVolume",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Snapshot ID to use for creating Archive Volume",
+                        "defaultValue": "",
+                        "toolTip": "Optionally select to restore P4D Archive volume from a snapshot",
+                        "constraints": {
+                            "required": false,
+                            "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,30}$",
+                            "validationMessage": "Snapshot ID must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
+                        }
+                    },
+                    {
                         "name": "snapshotIDJournalVolume",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Snapshot ID to use for creating Journal Volume",
