@@ -1,0 +1,106 @@
+{
+    "location": {
+      "value": "southeastasia"
+    },
+    "stackName": {
+      "value": "Perforce-Studio-In-A-Box"
+    },
+    "adminUsername": {
+      "value": "azureuser"
+    },
+    "vnetNewOrExisting": {
+      "value": "new"
+    },
+    "vnetName": {
+      "value": "VirtualNetwork"
+    },
+    "vnetAddressPrefixes": {
+      "value": [
+        "10.129.0.0/16"
+      ]
+    },
+    "publicSubnet0Name": {
+      "value": "PublicSubnet0"
+    },
+    "publicSubnet0": {
+      "value": "10.129.0.0/24"
+    },
+    "publicSubnet1Name": {
+      "value": "PublicSubnet1"
+    },
+    "publicSubnet1": {
+      "value": "10.129.1.0/24"
+    },
+    "privateSubnet0Name": {
+      "value": "PrivateSubnet0"
+    },
+    "privateSubnet0": {
+      "value": "10.129.2.0/24"
+    },
+    "privateSubnet1Name": {
+      "value": "PrivateSubnet1"
+    },
+    "privateSubnet1": {
+      "value": "10.129.3.0/24"
+    },
+    "vnetResourceGroupName": {
+      "value": "studioinabox1"
+    },
+    "nsgIPRangeToPermit": {
+      "value": "1.1.1.1/32"
+    },
+    "authenticationType": {
+      "value": "sshPublicKey"
+    },
+    "adminPasswordOrKey": {
+      "value": "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAmVTRMRLgly45nuTQKcS4AXKUqJNwp8JvoVuVN6xczawXm63JFrm2bVuP6u2dZSWe6kjDXFMUdH/8ymtjLr2TzpyoSL+0R9N5uCllQ7z/aFlrYUBopI6gs3+tvxVQlt7G5dkhfEfu+5m8v72SYlo+ZZ6b22Urwg9yeFAV0x1sTM9U/MjgwH/7/m+9lgkKmrqfqU6lbbIGOY42x1BbiMTPul/QkdELoptDRoEi+OtW5lWxP1ckxFbqzuyFVRx6dY7moQsGkIU+jDZsrMVLvZttO4pMtehwaUo5xfncPv0aWPbYu7ArBEXxGX13326QJi827Z+w3Icgvz/gkBd1l0RghQ=="
+    },
+    "p4dVMSize": {
+      "value": "Standard_D2_v2"
+    },
+    "depotVolumeSize": {
+      "value": "512"
+    },
+    "logVolumeSize": {
+      "value": "50"
+    },
+    "metadataVolumeSize": {
+      "value": "64"
+    },
+    "metadataProvisionedIOPS": {
+      "value": "100"
+    },
+    "journalVolumeSize": {
+      "value": "64"
+    },
+    "journalProvisionedIOPS": {
+      "value": "100"
+    },
+    "deployWindowsWorkstation": {
+      "value": "true"
+    },
+    "windowsVMSize": {
+      "value": "Standard_NV6"
+    },
+    "windowsRootVolumeSize": {
+      "value": "150"
+    },
+    "deployHansoft": {
+      "value": "true"
+    },
+    "hansoftVMSize": {
+      "value": "Standard_F8s_v2"
+    },
+    "hansoftRootVolumeSize": {
+      "value": "100"
+    },
+    "swarmVMSize": {
+      "value": "Standard_F8s_v2"
+    },
+    "swarmRootVolumeSize": {
+      "value": "100"
+    },
+    "environment": {
+      "value": "dev"
+    }
+  }
