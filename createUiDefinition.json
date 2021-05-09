@@ -30,7 +30,6 @@
                         },
                         {
                             "label": "Availability zone",
-                            "description": "Physically separate your resources within an Azure region.",
                             "value": "Zone"
                         }
                     ],
