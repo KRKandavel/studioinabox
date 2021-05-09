@@ -9,24 +9,6 @@
                 "description": "Location for the resources."
             }
         },
-        "environment": {
-            "defaultValue": "dev",
-            "type": "String"
-        },
-        "primaryZones": {
-            "defaultValue": "1",
-            "type": "String",
-            "metadata": {
-                "description": "Name of the primary zones"
-            }
-        },
-        "secondaryZones": {
-            "defaultValue": "1",
-            "type": "String",
-            "metadata": {
-                "description": "Name of the secondary zones"
-            }
-        },
         "customRoleCreate": {
             "type": "string",
             "defaultValue": "no",
@@ -38,13 +20,36 @@
                 "description": "Determines whether or not a new custom rule should be created."
             }
         },
+        "environment": {
+            "defaultValue": "dev",
+            "type": "String"
+        },
+        "primaryZone": {
+            "defaultValue": "1",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the primary zones"
+            }
+        },
+        "secondaryZone": {
+            "defaultValue": "1",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the secondary zones"
+            }
+        },
         "vnetName": {
             "defaultValue": "HXVNET",
             "type": "String"
         },
-        "vnetCIDR": {
-            "defaultValue": "10.0.0.0/16",
-            "type": "String"
+        "vnetAddressPrefixes": {
+            "type": "array",
+            "defaultValue": [
+                "10.0.0.0/16"
+            ],
+            "metadata": {
+                "description": "Address prefix of the virtual network"
+            }
         },
         "publicSubnet0Name": {
             "defaultValue": "PublicSubnet0",
@@ -78,18 +83,18 @@
             "defaultValue": "10.0.3.0/24",
             "type": "String"
         },
-        "accessSourceCIDR": {
+        "nsgIPRangeToPermit": {
             "defaultValue": "1.1.1.1/32",
             "type": "String"
         },
-        "hxcoreVMSize": {
+        "p4VMSize": {
             "type": "string",
             "defaultValue": "Standard_B2s",
             "metadata": {
                 "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
             }
         },
-        "hxcoreOS": {
+        "p4OSType": {
             "type": "string",
             "allowedValues": [
                 "Ubuntu 18.04 LTS",
@@ -101,35 +106,35 @@
                 "description": "The operating system of the VM."
             }
         },
-        "depotDiskName": {
+        "p4SnapshotIDArchive": {
             "type": "string",
-            "defaultValue": "depotDisk",
+            "defaultValue": "",
             "metadata": {
                 "description": "Name of the depot disk"
             }
         },
-        "logDiskName": {
+        "p4SnapshotIDJournal": {
             "type": "string",
-            "defaultValue": "logDisk",
-            "metadata": {
-                "description": "Name of the log disk"
-            }
-        },
-        "metadataDiskName": {
-            "type": "string",
-            "defaultValue": "metadataDisk",
-            "metadata": {
-                "description": "Name of the metadata disk"
-            }
-        },
-        "journalDiskName": {
-            "type": "string",
-            "defaultValue": "journalDisk",
+            "defaultValue": "",
             "metadata": {
                 "description": "Name of the journal disk"
             }
         },
-        "hxcoredataDiskSize": {
+        "p4SnapshotIDLog": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the log disk"
+            }
+        },
+        "p4SnapshotIDMetadata": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the metadata disk"
+            }
+        },
+        "p4dataDiskSize": {
             "type": "int",
             "minValue": 10,
             "maxValue": 2048,
@@ -137,10 +142,6 @@
             "metadata": {
                 "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
             }
-        },
-        "hxcoreScriptFilename": {
-            "type": "string",
-            "defaultValue": "configure-linux.sh"
         },
         "p4PreUserData": {
             "type": "string",
@@ -163,7 +164,7 @@
                 "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
             }
         },
-        "hansoftOS": {
+        "hansoftOSType": {
             "type": "string",
             "allowedValues": [
                 "Ubuntu 18.04 LTS",
@@ -205,7 +206,7 @@
                 "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
             }
         },
-        "swarmOS": {
+        "swarmOSType": {
             "type": "string",
             "allowedValues": [
                 "Ubuntu 18.04 LTS",
@@ -247,7 +248,7 @@
                 "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
             }
         },
-        "workstationOS": {
+        "workstationOSType": {
             "type": "string",
             "allowedValues": [
                 "Windows Server 2019"
@@ -307,26 +308,6 @@
             "type": "securestring",
             "metadata": {
                 "description": "Password or ssh key for the Virtual Machine."
-            }
-        },
-        "helix_admin_password": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Helix Core Server superuser password (user perforce)."
-            }
-        },
-        "p4Port": {
-            "type": "int",
-            "defaultValue": 1666,
-            "metadata": {
-                "description": "P4PORT value to connect to server (via ssl)"
-            }
-        },
-        "swarmPort": {
-            "type": "int",
-            "defaultValue": 80,
-            "metadata": {
-                "description": "Port for Swarm (Apache) to be setup on."
             }
         },
         "_artifactsLocation": {

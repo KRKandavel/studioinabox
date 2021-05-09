@@ -191,7 +191,7 @@
                         }
                     },
                     {
-                        "name": "SSHKeyPairCredentials",
+                        "name": "sshKeyPairCredentials",
                         "type": "Microsoft.Compute.CredentialsCombo",
                         "label": {
                             "authenticationType": "Authentication type",
@@ -214,10 +214,10 @@
                         "osPlatform": "Linux"
                     },
                     {
-                        "name": "P4DVMSize",
+                        "name": "p4VMSize",
                         "type": "Microsoft.Compute.SizeSelector",
-                        "label": "P4D instance type",
-                        "toolTip": "Select P4D server VM SKU",
+                        "label": "P4 instance type",
+                        "toolTip": "Select P4 server VM SKU",
                         "recommendedSizes": [
                             "Standard_D2_v2",
                             "Standard_A2_v2"
@@ -245,7 +245,7 @@
                         }
                     },
                     {
-                        "name": "snapshotIDArchiveVolume",
+                        "name": "p4SnapshotIDArchiveVolume",
                         "type": "Microsoft.Solutions.ResourceSelector",
                         "label": "Select storage snapshots",
                         "resourceType": "Microsoft.Compute/snapshots",
@@ -258,7 +258,7 @@
                         "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
-                        "name": "snapshotIDJournalVolume",
+                        "name": "p4SnapshotIDJournalVolume",
                         "type": "Microsoft.Solutions.ResourceSelector",
                         "label": "Select storage snapshots",
                         "resourceType": "Microsoft.Compute/snapshots",
@@ -271,7 +271,7 @@
                         "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
-                        "name": "snapshotIDLogVolume",
+                        "name": "p4SnapshotIDLogVolume",
                         "type": "Microsoft.Solutions.ResourceSelector",
                         "label": "Select storage snapshots",
                         "resourceType": "Microsoft.Compute/snapshots",
@@ -284,7 +284,7 @@
                         "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
-                        "name": "snapshotIDMetadataVolume",
+                        "name": "p4SnapshotIDMetadataVolume",
                         "type": "Microsoft.Solutions.ResourceSelector",
                         "label": "Select storage snapshots",
                         "resourceType": "Microsoft.Compute/snapshots",
@@ -306,12 +306,12 @@
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "StandardHDD",
-                                    "value": "Standard HDD"
+                                    "label": "Standard HDD",
+                                    "value": "Standard_HDD"
                                 },
                                 {
-                                    "label": "StandardSSD",
-                                    "value": "Standard SSD"
+                                    "label": "Standard SSD",
+                                    "value": "Standard_SSD"
                                 }
                             ]
                         }
@@ -351,11 +351,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Standard HDD",
-                                    "value": "Standard HDD"
+                                    "value": "Standard_HDD"
                                 },
                                 {
                                     "label": "Standard SSD",
-                                    "value": "Standard SSD"
+                                    "value": "Standard_SSD"
                                 }
                             ]
                         }
@@ -371,11 +371,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Standard HDD",
-                                    "value": "Standard HDD"
+                                    "value": "Standard_HDD"
                                 },
                                 {
                                     "label": "Standard SSD",
-                                    "value": "Standard SSD"
+                                    "value": "Standard_SSD"
                                 }
                             ]
                         }
@@ -415,11 +415,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Standard HDD",
-                                    "value": "Standard HDD"
+                                    "value": "Standard_HDD"
                                 },
                                 {
                                     "label": "Standard SSD",
-                                    "value": "Standard SSD"
+                                    "value": "Standard_SSD"
                                 }
                             ]
                         }
@@ -449,7 +449,7 @@
                         }
                     },
                     {
-                        "name": "preUserdata",
+                        "name": "p4PreUserdata",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Pre Userdata",
                         "defaultValue": "",
@@ -467,7 +467,7 @@
                         "visible": true
                     },
                     {
-                        "name": "postUserdata",
+                        "name": "p4PostUserdata",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Post Userdata",
                         "defaultValue": "",
@@ -539,7 +539,7 @@
                         }
                     },
                     {
-                        "name": "preUserdata",
+                        "name": "windowsPreUserdata",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Pre Userdata",
                         "defaultValue": "",
@@ -557,7 +557,7 @@
                         "visible": true
                     },
                     {
-                        "name": "postUserdata",
+                        "name": "windowsPostUserdata",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Post Userdata",
                         "defaultValue": "",
@@ -629,7 +629,7 @@
                         }
                     },
                     {
-                        "name": "preUserdata",
+                        "name": "hansoftPreUserdata",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Pre Userdata",
                         "defaultValue": "",
@@ -647,7 +647,7 @@
                         "visible": true
                     },
                     {
-                        "name": "postUserdata",
+                        "name": "hansoftPostUserdata",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Post Userdata",
                         "defaultValue": "",
@@ -719,7 +719,7 @@
                         }
                     },
                     {
-                        "name": "preUserdata",
+                        "name": "swarmPreUserdata",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Pre Userdata",
                         "defaultValue": "",
@@ -737,7 +737,7 @@
                         "visible": true
                     },
                     {
-                        "name": "postUserdata",
+                        "name": "swarmPostUserdata",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Post Userdata",
                         "defaultValue": "",
@@ -799,13 +799,14 @@
             "vnetResourceGroupName": "[steps('VirtualNetworkConfig').virtualNetwork.resourceGroup]",
             "nsgIPRangeToPermit": "[steps('VirtualNetworkConfig').ipRangeToPermitFrom]",
             "adminUsername": "[steps('PerforceServerConfig').adminUsername]",
-            "authenticationType": "[steps('PerforceServerConfig').SSHKeyPairCredentials.authenticationType]",
-            "adminPasswordOrKey": "[coalesce(steps('PerforceServerConfig').SSHKeyPairCredentials.password, steps('PerforceServerConfig').SSHKeyPairCredentials.sshPublicKey)]",
-            "p4dVMSize": "[steps('PerforceServerConfig').P4DVMSize]",
-            "snapshotIDArchiveVolume": "[steps('PerforceServerConfig').snapshotIDArchiveVolume]",
-            "snapshotIDJournalVolume": "[steps('PerforceServerConfig').snapshotIDJournalVolume]",
-            "snapshotIDLogVolume": "[steps('PerforceServerConfig').snapshotIDLogVolume]",
-            "snapshotIDMetadataVolume": "[steps('PerforceServerConfig').snapshotIDMetadataVolume]",
+            "authenticationType": "[steps('PerforceServerConfig').sshKeyPairCredentials.authenticationType]",
+            "adminPasswordOrKey": "[coalesce(steps('PerforceServerConfig').sshKeyPairCredentials.password, steps('PerforceServerConfig').sshKeyPairCredentials.sshPublicKey)]",
+            "p4VMSize": "[steps('PerforceServerConfig').p4VMSize]",
+            "p4OSType": "[steps('PerforceServerConfig').p4OSType]",
+            "p4SnapshotIDArchive": "[steps('PerforceServerConfig').p4SnapshotIDArchive.id]",
+            "p4SnapshotIDJournal": "[steps('PerforceServerConfig').p4SnapshotIDJournal.id]",
+            "p4SnapshotIDLog": "[steps('PerforceServerConfig').p4SnapshotIDLog.id]",
+            "p4SnapshotIDMetadata": "[steps('PerforceServerConfig').P4SnapshotIDMetadata.id]",
             "depotVolumeType": "[steps('PerforceServerConfig').depotVolumeType]",
             "depotVolumeSize": "[steps('PerforceServerConfig').depotVolumeSize]",
             "logVolumeType": "[steps('PerforceServerConfig').logVolumeType]",
@@ -816,22 +817,23 @@
             "journalVolumeType": "[steps('PerforceServerConfig').journalVolumeType]",
             "journalVolumeSize": "[steps('PerforceServerConfig').journalVolumeSize]",
             "journalProvisionedIOPS": "[steps('PerforceServerConfig').journalProvisionedIOPS]",
-            "p4dPreUserdata": "[steps('PerforceServerConfig').preUserdata]",
-            "p4dPostUserdata": "[steps('PerforceServerConfig').postUserdata]",
+            "p4PreUserdata": "[steps('PerforceServerConfig').p4PreUserdata]",
+            "p4PostUserdata": "[steps('PerforceServerConfig').p4PostUserdata]",
+            "deployHansoft": "[steps('HansoftConfig').deployHansoft]",
+            "hansoftVMSize": "[steps('HansoftConfig').hansoftVMSize]",
+            "hansoftOSType": "[steps('HansoftConfig').hansoftOSType]",
+            "hansoftRootVolumeSize": "[steps('HansoftConfig').hansoftRootVolumeSize]",
+            "hansoftPreUserdata": "[steps('HansoftConfig').hansoftPreUserdata]",
+            "hansoftPostUserdata": "[steps('HansoftConfig').hansoftPostUserdata]",
+            "swarmVMSize": "[steps('SwarmConfig').swarmVMSize]",
+            "swarmRootVolumeSize": "[steps('SwarmConfig').swarmRootVolumeSize]",
+            "swarmPreUserdata": "[steps('SwarmConfig').swarmPreUserdata]",
+            "swarmPostUserdata": "[steps('SwarmConfig').swarmPostUserdata]",
             "deployWindowsWorkstation": "[steps('WindowsWorkstationConfig').deployWindowsWorkstation]",
             "windowsVMSize": "[steps('WindowsWorkstationConfig').windowsVMSize]",
             "windowsRootVolumeSize": "[steps('WindowsWorkstationConfig').windowsRootVolumeSize]",
-            "windowsPreUserdata": "[steps('WindowsWorkstationConfig').preUserdata]",
-            "windowsPostUserdata": "[steps('WindowsWorkstationConfig').postUserdata]",
-            "deployHansoft": "[steps('HansoftConfig').deployHansoft]",
-            "hansoftVMSize": "[steps('HansoftConfig').hansoftVMSize]",
-            "hansoftRootVolumeSize": "[steps('HansoftConfig').hansoftRootVolumeSize]",
-            "hansoftPreUserdata": "[steps('HansoftConfig').preUserdata]",
-            "hansoftPostUserdata": "[steps('HansoftConfig').postUserdata]",
-            "swarmVMSize": "[steps('SwarmConfig').swarmVMSize]",
-            "swarmRootVolumeSize": "[steps('SwarmConfig').swarmRootVolumeSize]",
-            "swarmPreUserdata": "[steps('SwarmConfig').preUserdata]",
-            "swarmPostUserdata": "[steps('SwarmConfig').postUserdata]",
+            "windowsPreUserdata": "[steps('WindowsWorkstationConfig').windowsPreUserdata]",
+            "windowsPostUserdata": "[steps('WindowsWorkstationConfig').windowsPostUserdata]",
             "environment": "[steps('OtherParams').environment]"
         }
     }
