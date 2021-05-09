@@ -898,7 +898,7 @@
             "p4SnapshotIDArchive": "[steps('PerforceServerConfig').p4SnapshotIDArchive.id]",
             "p4SnapshotIDJournal": "[steps('PerforceServerConfig').p4SnapshotIDJournal.id]",
             "p4SnapshotIDLog": "[steps('PerforceServerConfig').p4SnapshotIDLog.id]",
-            "p4SnapshotIDMetadata": "[steps('PerforceServerConfig').P4SnapshotIDMetadata.id]",
+            "p4SnapshotIDMetadata": "[steps('PerforceServerConfig').p4SnapshotIDMetadata.id]",
             "depotVolumeType": "[steps('PerforceServerConfig').depotVolumeType]",
             "depotVolumeSize": "[steps('PerforceServerConfig').depotVolumeSize]",
             "logVolumeType": "[steps('PerforceServerConfig').logVolumeType]",
