@@ -454,7 +454,7 @@
                 ]
             },
             {
-                "name": "WindowsWorkStationConfig",
+                "name": "WindowsWorkstationConfig",
                 "label": "Windows Workstation Configuration",
                 "subLabel": {
                     "preValidation": "Configure the Windows Workstation's resources and settings",
