@@ -17,7 +17,7 @@
                 }
             },
             {
-                "name": "availabilityOptions",
+                "name": "availabilityOption",
                 "type": "Microsoft.Common.DropDown",
                 "label": "Availability Options",
                 "defaultValue": "No infrastructure redundancy required",
@@ -38,11 +38,11 @@
                 "visible": true
             },
             {
-                "name": "vmDataNodeCount",
+                "name": "primaryZones",
                 "type": "Microsoft.Common.DropDown",
-                "label": "Number of data nodes",
-                "defaultValue": "3",
-                "toolTip": "Specify the number of data nodes for this cluster. When not using dedicated master nodes, it is strongly recommended to have a minimum 3 data nodes in order to avoid split brain scenarios.",
+                "label": "Number of primary zone",
+                "defaultValue": "1",
+                "toolTip": "Specify the number of primary zone data nodes for this deployment.",
                 "constraints": {
                     "allowedValues": [
                         {
@@ -54,7 +54,28 @@
                             "value": 2
                         }
                     ]
-                }
+                },
+                "visible": "[equals(basics('availabilityOption'), 'Zone')]"
+            },
+            {
+                "name": "secondaryZones",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Number of secondary zone",
+                "defaultValue": "1",
+                "toolTip": "Specify the number of secondary zone data nodes for this deployment.",
+                "constraints": {
+                    "allowedValues": [
+                        {
+                            "label": "1",
+                            "value": 1
+                        },
+                        {
+                            "label": "2",
+                            "value": 2
+                        }
+                    ]
+                },
+                "visible": "[equals(basics('availabilityOption'), 'Zone')]"
             }
         ],
         "steps": [
