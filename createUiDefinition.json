@@ -318,7 +318,7 @@
                                 "location": "onBasics"
                             }
                         },
-                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot), 'snapshot')]"
+                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "depotVolumeType",
