@@ -26,11 +26,11 @@
                     "allowedValues": [
                         {
                             "label": "No infrastructure redundancy required",
-                            "value": "Region"
+                            "value": "region"
                         },
                         {
                             "label": "Availability zone",
-                            "value": "Zone"
+                            "value": "zone"
                         }
                     ],
                     "required": true
@@ -38,7 +38,7 @@
                 "visible": true
             },
             {
-                "name": "primaryZones",
+                "name": "primaryZone",
                 "type": "Microsoft.Common.DropDown",
                 "label": "Number of primary zone",
                 "defaultValue": "1",
@@ -55,10 +55,10 @@
                         }
                     ]
                 },
-                "visible": "[equals(basics('availabilityOption'), 'Zone')]"
+                "visible": "[equals(basics('availabilityOption'), 'zone')]"
             },
             {
-                "name": "secondaryZones",
+                "name": "secondaryZone",
                 "type": "Microsoft.Common.DropDown",
                 "label": "Number of secondary zone",
                 "defaultValue": "1",
@@ -75,7 +75,7 @@
                         }
                     ]
                 },
-                "visible": "[equals(basics('availabilityOption'), 'Zone')]"
+                "visible": "[equals(basics('availabilityOption'), 'zone')]"
             }
         ],
         "steps": [
