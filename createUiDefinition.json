@@ -38,30 +38,6 @@
                 "visible": true
             },
             {
-                "name": "availabilityZones",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Availability Zones",
-                "defaultValue": "1",
-                "toolTip": "Select zone to deploy resources.",
-                "constraints": {
-                    "allowedValues": [
-                        {
-                            "label": "1",
-                            "value": "1"
-                        },
-                        {
-                            "label": "2",
-                            "value": "2"
-                        },
-                        {
-                            "label": "3",
-                            "value": "3"
-                        }
-                    ],
-                    "required": true
-                }
-            },
-            {
                 "name": "adminUsername",
                 "type": "Microsoft.Compute.UserNameTextBox",
                 "label": "Username",
