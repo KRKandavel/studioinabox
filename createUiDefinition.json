@@ -20,8 +20,7 @@
                 "name": "availabilityOptions",
                 "type": "Microsoft.Common.DropDown",
                 "label": "Availability Options",
-                "visible": true,
-                "defaultValue": "Region",
+                "defaultValue": "No infrastructure redundancy required",
                 "toolTip": "Select either Region or Zone.",
                 "constraints": {
                     "allowedValues": [
@@ -31,11 +30,50 @@
                         },
                         {
                             "label": "Availability zone",
+                            "description": "Physically separate your resources within an Azure region.",
                             "value": "Zone"
                         }
-                    ]
-                }
+                      ],
+                      "required": true
+                },
+                "visible": true
             },
+            {
+                "name": "availabilityZones",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Availability Zones",
+                "defaultValue": "1",
+                "toolTip": "Select zone to deploy resources.",
+                "constraints": {
+                    "allowedValues": [
+                        {
+                            "label": "1",
+                            "value": "1"
+                        },
+                        {
+                            "label": "2",
+                            "value": "2"
+                        },
+                        {
+                            "label": "3",
+                            "value": "3"
+                        }                        
+                      ]
+                },
+                "visible": "[equals(basics('availabilityOptions') 'Zone')]"
+            },
+            {
+                "name": "storageSelector",
+                "type": "Microsoft.Solutions.ResourceSelector",
+                "label": "Select storage snapshots",
+                "resourceType": "Microsoft.Compute/snapshots",
+                "options": {
+                    "filter": {
+                        "subscription": "onBasics",
+                        "location": "onBasics"
+                    }
+                }
+            },                    
             {
                 "name": "adminUsername",
                 "type": "Microsoft.Compute.UserNameTextBox",
