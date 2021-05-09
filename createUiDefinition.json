@@ -292,7 +292,7 @@
                                 "location": "onBasics"
                             }
                         },
-                        "visible": "[equals(steps('deployFromScratchOrSnapshot').deployFromScratchOrSnapshot, 'snapshot')]"
+                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDLog",
