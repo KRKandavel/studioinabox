@@ -38,30 +38,23 @@
                 "visible": true
             },
             {
-                "name": "dataNodes",
-                "type": "Microsoft.Common.Section",
-                "label": "Data nodes",
-                "elements": [
-                    {
-                        "name": "vmDataNodeCount",
-                        "type": "Microsoft.Common.DropDown",
-                        "label": "Number of data nodes",
-                        "defaultValue": "3",
-                        "toolTip": "Specify the number of data nodes for this cluster. When not using dedicated master nodes, it is strongly recommended to have a minimum 3 data nodes in order to avoid split brain scenarios.",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "1",
-                                    "value": 1
-                                },
-                                {
-                                    "label": "2",
-                                    "value": 2
-                                }
-                            ]
+                "name": "vmDataNodeCount",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Number of data nodes",
+                "defaultValue": "3",
+                "toolTip": "Specify the number of data nodes for this cluster. When not using dedicated master nodes, it is strongly recommended to have a minimum 3 data nodes in order to avoid split brain scenarios.",
+                "constraints": {
+                    "allowedValues": [
+                        {
+                            "label": "1",
+                            "value": 1
+                        },
+                        {
+                            "label": "2",
+                            "value": 2
                         }
-                    }
-                ]
+                    ]
+                }
             }
         ],
         "steps": [
