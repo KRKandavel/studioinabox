@@ -63,18 +63,6 @@
                 }
             },
             {
-                "name": "storageSelector",
-                "type": "Microsoft.Solutions.ResourceSelector",
-                "label": "Select storage snapshots",
-                "resourceType": "Microsoft.Compute/snapshots",
-                "options": {
-                    "filter": {
-                        "subscription": "onBasics",
-                        "location": "onBasics"
-                    }
-                }
-            },
-            {
                 "name": "adminUsername",
                 "type": "Microsoft.Compute.UserNameTextBox",
                 "label": "Username",
