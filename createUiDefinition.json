@@ -279,7 +279,7 @@
                                 "location": "onBasics"
                             }
                         },
-                        "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
+                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDJournal",
@@ -292,7 +292,7 @@
                                 "location": "onBasics"
                             }
                         },
-                        "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
+                        "visible": "[equals(steps('deployFromScratchOrSnapshot').deployFromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDLog",
@@ -305,7 +305,7 @@
                                 "location": "onBasics"
                             }
                         },
-                        "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
+                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDMetadata",
@@ -318,7 +318,7 @@
                                 "location": "onBasics"
                             }
                         },
-                        "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
+                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot), 'snapshot')]"
                     },
                     {
                         "name": "depotVolumeType",
