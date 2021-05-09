@@ -226,6 +226,30 @@
                         "count": "1"
                     },
                     {
+                        "name": "p4OSType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Select OS type for P4",
+                        "defaultValue": "1",
+                        "toolTip": "Specify the operating system for P4 Virtual Machine.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Ubuntu 18.04 LTS",
+                                    "value": "Ubuntu 18.04 LTS"
+                                },
+                                {
+                                    "label": "CentOS 7.x",
+                                    "value": "CentOS 7.x"
+                                },
+                                {
+                                    "label": "RHEL 7.x",
+                                    "value": "RHEL 7.x"
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
                         "name": "deployFromScratchOrSnapshot",
                         "type": "Microsoft.Common.OptionsGroup",
                         "label": "Deploy P4 From Scratch/Snapshot",
@@ -245,7 +269,7 @@
                         }
                     },
                     {
-                        "name": "p4SnapshotIDArchiveVolume",
+                        "name": "p4SnapshotIDArchive",
                         "type": "Microsoft.Solutions.ResourceSelector",
                         "label": "Select storage snapshots",
                         "resourceType": "Microsoft.Compute/snapshots",
@@ -258,7 +282,7 @@
                         "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
-                        "name": "p4SnapshotIDJournalVolume",
+                        "name": "p4SnapshotIDJournal",
                         "type": "Microsoft.Solutions.ResourceSelector",
                         "label": "Select storage snapshots",
                         "resourceType": "Microsoft.Compute/snapshots",
@@ -271,7 +295,7 @@
                         "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
-                        "name": "p4SnapshotIDLogVolume",
+                        "name": "p4SnapshotIDLog",
                         "type": "Microsoft.Solutions.ResourceSelector",
                         "label": "Select storage snapshots",
                         "resourceType": "Microsoft.Compute/snapshots",
@@ -284,7 +308,7 @@
                         "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
-                        "name": "p4SnapshotIDMetadataVolume",
+                        "name": "p4SnapshotIDMetadata",
                         "type": "Microsoft.Solutions.ResourceSelector",
                         "label": "Select storage snapshots",
                         "resourceType": "Microsoft.Compute/snapshots",
@@ -527,6 +551,26 @@
                         "count": "1"
                     },
                     {
+                        "name": "windowsOSType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Select OS type for Workstation",
+                        "defaultValue": "Windows Server 2019",
+                        "toolTip": "Specify the operating system for Workstation Virtual Machine.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Windows Server 2019",
+                                    "value": "Windows Server 2019"
+                                },
+                                {
+                                    "label": "Windows Server 2016",
+                                    "value": "Windows Server 2019"
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
                         "name": "windowsRootVolumeSize",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Windows instance root volume size",
@@ -617,6 +661,30 @@
                         "count": "1"
                     },
                     {
+                        "name": "hansoftOSType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Select OS type for Hansoft",
+                        "defaultValue": "Ubuntu 18.04 LTS",
+                        "toolTip": "Specify the operating system for Hansoft Virtual Machine.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Ubuntu 18.04 LTS",
+                                    "value": "Ubuntu 18.04 LTS"
+                                },
+                                {
+                                    "label": "CentOS 7.x",
+                                    "value": "CentOS 7.x"
+                                },
+                                {
+                                    "label": "RHEL 7.x",
+                                    "value": "RHEL 7.x"
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
                         "name": "hansoftRootVolumeSize",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Hansoft instance root volume size",
@@ -705,6 +773,30 @@
                         ],
                         "osPlatform": "Linux",
                         "count": "1"
+                    },
+                    {
+                        "name": "swarmOSType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Select OS type for Swarm",
+                        "defaultValue": "Ubuntu 18.04 LTS",
+                        "toolTip": "Specify the operating system for Swarm Virtual Machine.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Ubuntu 18.04 LTS",
+                                    "value": "Ubuntu 18.04 LTS"
+                                },
+                                {
+                                    "label": "CentOS 7.x",
+                                    "value": "CentOS 7.x"
+                                },
+                                {
+                                    "label": "RHEL 7.x",
+                                    "value": "RHEL 7.x"
+                                }
+                            ]
+                        },
+                        "visible": true
                     },
                     {
                         "name": "swarmRootVolumeSize",
