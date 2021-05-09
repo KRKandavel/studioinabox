@@ -17,6 +17,26 @@
                 }
             },
             {
+                "name": "availabilityOptions",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Availability Options",
+                "visible": true,
+                "defaultValue": "Region",
+                "toolTip": "Select either Region or Zone.",
+                "constraints": {
+                    "allowedValues": [
+                        {
+                            "label": "No infrastructure redundancy required",
+                            "value": "Region"
+                        },
+                        {
+                            "label": "Availability zone",
+                            "value": "Zone"
+                        }
+                    ]
+                }
+            },
+            {
                 "name": "adminUsername",
                 "type": "Microsoft.Compute.UserNameTextBox",
                 "label": "Username",
