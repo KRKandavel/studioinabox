@@ -47,11 +47,11 @@
                     "allowedValues": [
                         {
                             "label": "1",
-                            "value": 1
+                            "value": "1"
                         },
                         {
                             "label": "2",
-                            "value": 2
+                            "value": "2"
                         }
                     ]
                 },
@@ -67,11 +67,11 @@
                     "allowedValues": [
                         {
                             "label": "1",
-                            "value": 1
+                            "value": "1"
                         },
                         {
                             "label": "2",
-                            "value": 2
+                            "value": "2"
                         }
                     ]
                 },
@@ -245,7 +245,7 @@
                         }
                     },
                     {
-                        "name": "storageSelector",
+                        "name": "snapshotIDArchiveVolume",
                         "type": "Microsoft.Solutions.ResourceSelector",
                         "label": "Select storage snapshots",
                         "resourceType": "Microsoft.Compute/snapshots",
@@ -254,55 +254,47 @@
                                 "subscription": "onBasics",
                                 "location": "onBasics"
                             }
-                        }
-                    },
-                    {
-                        "name": "snapshotIDArchiveVolume",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Snapshot ID to use for creating Archive Volume",
-                        "defaultValue": "",
-                        "toolTip": "Optionally select to restore P4D Archive volume from a snapshot",
-                        "constraints": {
-                            "required": false,
-                            "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,30}$",
-                            "validationMessage": "Snapshot ID must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
-                        }
+                        },
+                        "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
                         "name": "snapshotIDJournalVolume",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Snapshot ID to use for creating Journal Volume",
-                        "defaultValue": "",
-                        "toolTip": "Optionally select to restore P4D Journal volume from a snapshot",
-                        "constraints": {
-                            "required": false,
-                            "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,30}$",
-                            "validationMessage": "Snapshot ID must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
-                        }
+                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "label": "Select storage snapshots",
+                        "resourceType": "Microsoft.Compute/snapshots",
+                        "options": {
+                            "filter": {
+                                "subscription": "onBasics",
+                                "location": "onBasics"
+                            }
+                        },
+                        "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
                         "name": "snapshotIDLogVolume",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Snapshot ID to use for creating Log Volume",
-                        "defaultValue": "",
-                        "toolTip": "Optionally select to restore P4D Log volume from a snapshot",
-                        "constraints": {
-                            "required": false,
-                            "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,30}$",
-                            "validationMessage": "Snapshot ID must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
-                        }
+                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "label": "Select storage snapshots",
+                        "resourceType": "Microsoft.Compute/snapshots",
+                        "options": {
+                            "filter": {
+                                "subscription": "onBasics",
+                                "location": "onBasics"
+                            }
+                        },
+                        "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
                         "name": "snapshotIDMetadataVolume",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Snapshot ID to use for creating Metadata Volume",
-                        "defaultValue": "",
-                        "toolTip": "Optionally select to restore P4D Metadata volume from a snapshot",
-                        "constraints": {
-                            "required": false,
-                            "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,30}$",
-                            "validationMessage": "Snapshot ID must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
-                        }
+                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "label": "Select storage snapshots",
+                        "resourceType": "Microsoft.Compute/snapshots",
+                        "options": {
+                            "filter": {
+                                "subscription": "onBasics",
+                                "location": "onBasics"
+                            }
+                        },
+                        "visible": "[equals(steps('deployFromScratchOrSnapshot'), 'snapshot')]"
                     },
                     {
                         "name": "depotVolumeType",
@@ -791,6 +783,8 @@
         "outputs": {
             "location": "[location()]",
             "stackName": "[basics('stackName')]",
+            "primaryZone": "[basics('primaryZone')]",
+            "secondaryZone": "[basics('secondaryZone')]",
             "vnetNewOrExisting": "[steps('VirtualNetworkConfig').virtualNetwork.newOrExisting]",
             "vnetName": "[steps('VirtualNetworkConfig').virtualNetwork.name]",
             "vnetAddressPrefixes": "[steps('VirtualNetworkConfig').virtualNetwork.addressPrefixes]",
@@ -804,9 +798,9 @@
             "privateSubnet1": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet4.addressPrefix]",
             "vnetResourceGroupName": "[steps('VirtualNetworkConfig').virtualNetwork.resourceGroup]",
             "nsgIPRangeToPermit": "[steps('VirtualNetworkConfig').ipRangeToPermitFrom]",
+            "adminUsername": "[steps('PerforceServerConfig').adminUsername]",
             "authenticationType": "[steps('PerforceServerConfig').SSHKeyPairCredentials.authenticationType]",
             "adminPasswordOrKey": "[coalesce(steps('PerforceServerConfig').SSHKeyPairCredentials.password, steps('PerforceServerConfig').SSHKeyPairCredentials.sshPublicKey)]",
-            "adminUsername": "[steps('PerforceServerConfig').adminUsername]",
             "p4dVMSize": "[steps('PerforceServerConfig').P4DVMSize]",
             "snapshotIDArchiveVolume": "[steps('PerforceServerConfig').snapshotIDArchiveVolume]",
             "snapshotIDJournalVolume": "[steps('PerforceServerConfig').snapshotIDJournalVolume]",
