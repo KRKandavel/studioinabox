@@ -271,7 +271,7 @@
                     {
                         "name": "p4SnapshotIDArchive",
                         "type": "Microsoft.Solutions.ResourceSelector",
-                        "label": "Select storage snapshots",
+                        "label": "P4 Snapshot for Archive",
                         "resourceType": "Microsoft.Compute/snapshots",
                         "options": {
                             "filter": {
@@ -284,7 +284,7 @@
                     {
                         "name": "p4SnapshotIDJournal",
                         "type": "Microsoft.Solutions.ResourceSelector",
-                        "label": "Select storage snapshots",
+                        "label": "P4 Snapshot for Journal",
                         "resourceType": "Microsoft.Compute/snapshots",
                         "options": {
                             "filter": {
@@ -297,7 +297,7 @@
                     {
                         "name": "p4SnapshotIDLog",
                         "type": "Microsoft.Solutions.ResourceSelector",
-                        "label": "Select storage snapshots",
+                        "label": "P4 Snapshot for Log",
                         "resourceType": "Microsoft.Compute/snapshots",
                         "options": {
                             "filter": {
@@ -310,7 +310,7 @@
                     {
                         "name": "p4SnapshotIDMetadata",
                         "type": "Microsoft.Solutions.ResourceSelector",
-                        "label": "Select storage snapshots",
+                        "label": "P4 Snapshot for Metadata",
                         "resourceType": "Microsoft.Compute/snapshots",
                         "options": {
                             "filter": {
@@ -569,6 +569,23 @@
                             ]
                         },
                         "visible": true
+                    },
+                    {
+                        "name": "windowsAdminPassword",
+                        "type": "Microsoft.Common.PasswordBox",
+                        "label": {
+                            "password": "'azureuser' built-in user password",
+                            "confirmPassword": "Confirm password"
+                        },
+                        "toolTip": "Password for the built-in 'azureuser' user. This is a built-in superuser account with unlimited access",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^.{12,}",
+                            "validationMessage": "Password must be at least 12 characters long"
+                        },
+                        "options": {
+                            "hideConfirmation": false
+                        }
                     },
                     {
                         "name": "windowsRootVolumeSize",
@@ -918,11 +935,14 @@
             "hansoftPreUserdata": "[steps('HansoftConfig').hansoftPreUserdata]",
             "hansoftPostUserdata": "[steps('HansoftConfig').hansoftPostUserdata]",
             "swarmVMSize": "[steps('SwarmConfig').swarmVMSize]",
+            "swarmOSType": "[steps('SwarmConfig').swarmOSType]",
             "swarmRootVolumeSize": "[steps('SwarmConfig').swarmRootVolumeSize]",
             "swarmPreUserdata": "[steps('SwarmConfig').swarmPreUserdata]",
             "swarmPostUserdata": "[steps('SwarmConfig').swarmPostUserdata]",
             "deployWindowsWorkstation": "[steps('WindowsWorkstationConfig').deployWindowsWorkstation]",
             "windowsVMSize": "[steps('WindowsWorkstationConfig').windowsVMSize]",
+            "windowsOSType": "[steps('WindowsWorkstationConfig').windowsOSType]",
+            "windowsAdminPassword": "[steps('WindowsWorkstationConfig').windowsAdminPassword]",
             "windowsRootVolumeSize": "[steps('WindowsWorkstationConfig').windowsRootVolumeSize]",
             "windowsPreUserdata": "[steps('WindowsWorkstationConfig').windowsPreUserdata]",
             "windowsPostUserdata": "[steps('WindowsWorkstationConfig').windowsPostUserdata]",

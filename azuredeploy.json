@@ -304,7 +304,7 @@
                 "description": "Password or ssh key for the Virtual Machine."
             }
         },
-        "adminPassword": {
+        "windowsAdminPassword": {
             "type": "securestring",
             "metadata": {
                 "description": "Password or ssh key for the Virtual Machine."
@@ -343,6 +343,6 @@
         }
     ],
     "outputs": {
-        
+
     }
 }
