@@ -145,7 +145,62 @@
                 "description": "Name of the metadata disk"
             }
         },
-        "p4dataDiskSize": {
+        "depotDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "depotDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "logDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "logDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "metadataDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "metadataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "journalDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "journalDiskSize": {
             "type": "int",
             "minValue": 10,
             "maxValue": 2048,
@@ -316,6 +371,7 @@
         },
         "adminUsername": {
             "type": "string",
+            "defaultValue": "azureuser",
             "metadata": {
                 "description": "Admin username for Virtual Machine"
             }
