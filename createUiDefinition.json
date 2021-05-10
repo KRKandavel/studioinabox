@@ -556,17 +556,17 @@
                             "allowedValues": [
                                 {
                                     "label": "true",
-                                    "value": "true"
+                                    "value": true
                                 },
                                 {
                                     "label": "false",
-                                    "value": "false"
+                                    "value": false
                                 }
                             ]
                         }
                     },
                     {
-                        "name": "windowsVMSize",
+                        "name": "workstationVMSize",
                         "type": "Microsoft.Compute.SizeSelector",
                         "label": "Windows instance type",
                         "toolTip": "Select Windows Workstation VM SKU",
@@ -603,7 +603,7 @@
                         "visible": true
                     },
                     {
-                        "name": "windowsOSType",
+                        "name": "workstationOSType",
                         "type": "Microsoft.Common.DropDown",
                         "label": "Select OS type for Workstation",
                         "defaultValue": "Windows Server 2019",
@@ -616,14 +616,14 @@
                                 },
                                 {
                                     "label": "Windows Server 2016",
-                                    "value": "Windows Server 2019"
+                                    "value": "Windows Server 2016"
                                 }
                             ]
                         },
                         "visible": true
                     },
                     {
-                        "name": "windowsAdminPassword",
+                        "name": "workstationAdminPassword",
                         "type": "Microsoft.Common.PasswordBox",
                         "label": {
                             "password": "'azureuser' built-in user password",
@@ -640,7 +640,7 @@
                         }
                     },
                     {
-                        "name": "windowsRootVolumeSize",
+                        "name": "workstationRootVolumeSize",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Windows instance root volume size",
                         "defaultValue": "150",
@@ -652,7 +652,7 @@
                         }
                     },
                     {
-                        "name": "windowsPreUserData",
+                        "name": "workstationPreUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Pre Userdata",
                         "defaultValue": "",
@@ -671,7 +671,7 @@
                         "visible": true
                     },
                     {
-                        "name": "windowsPostUserData",
+                        "name": "workstationPostUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Post Userdata",
                         "defaultValue": "",
@@ -710,11 +710,11 @@
                             "allowedValues": [
                                 {
                                     "label": "true",
-                                    "value": "true"
+                                    "value": true
                                 },
                                 {
                                     "label": "false",
-                                    "value": "false"
+                                    "value": false
                                 }
                             ]
                         }
@@ -826,11 +826,11 @@
                             "allowedValues": [
                                 {
                                     "label": "true",
-                                    "value": "true"
+                                    "value": true
                                 },
                                 {
                                     "label": "false",
-                                    "value": "false"
+                                    "value": false
                                 }
                             ]
                         }
@@ -1018,18 +1018,19 @@
             "hansoftRootVolumeSize": "[steps('HansoftConfig').hansoftRootVolumeSize]",
             "hansoftPreUserData": "[steps('HansoftConfig').hansoftPreUserData]",
             "hansoftPostUserData": "[steps('HansoftConfig').hansoftPostUserData]",
+            "deploySwarm": "[steps('SwarmConfig').deploySwarm]",
             "swarmVMSize": "[steps('SwarmConfig').swarmVMSize]",
             "swarmOSType": "[steps('SwarmConfig').swarmOSType]",
             "swarmRootVolumeSize": "[steps('SwarmConfig').swarmRootVolumeSize]",
             "swarmPreUserData": "[steps('SwarmConfig').swarmPreUserData]",
             "swarmPostUserData": "[steps('SwarmConfig').swarmPostUserData]",
-            "deployWindowsWorkstation": "[steps('WindowsWorkstationConfig').deployWindowsWorkstation]",
-            "windowsVMSize": "[steps('WindowsWorkstationConfig').windowsVMSize]",
-            "windowsOSType": "[steps('WindowsWorkstationConfig').windowsOSType]",
-            "windowsAdminPassword": "[steps('WindowsWorkstationConfig').windowsAdminPassword]",
-            "windowsRootVolumeSize": "[steps('WindowsWorkstationConfig').windowsRootVolumeSize]",
-            "windowsPreUserData": "[steps('WindowsWorkstationConfig').windowsPreUserData]",
-            "windowsPostUserData": "[steps('WindowsWorkstationConfig').windowsPostUserData]",
+            "deployWorkstation": "[steps('WindowsWorkstationConfig').deployWorkstation]",
+            "workstationVMSize": "[steps('WindowsWorkstationConfig').workstationVMSize]",
+            "workstationOSType": "[steps('WindowsWorkstationConfig').workstationOSType]",
+            "workstationAdminPassword": "[steps('WindowsWorkstationConfig').workstationAdminPassword]",
+            "workstationRootVolumeSize": "[steps('WindowsWorkstationConfig').workstationRootVolumeSize]",
+            "workstationPreUserData": "[steps('WindowsWorkstationConfig').workstationPreUserData]",
+            "workstationPostUserData": "[steps('WindowsWorkstationConfig').workstationPostUserData]",
             "environment": "[steps('OtherParams').environment]"
         }
     }

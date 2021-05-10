@@ -168,6 +168,13 @@
                 "description": "Userdata to run after the default P4 userdata"
             }
         },
+        "deployHansoft": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Flag to deploy workstation or not."
+            }
+        },
         "hansoftVMSize": {
             "type": "string",
             "defaultValue": "Standard_B2s",
@@ -210,6 +217,14 @@
                 "description": "Userdata to run after the default P4 userdata"
             }
         },
+        "deploySwarm": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Flag to deploy Swarm or not."
+            }
+        },
+
         "swarmVMSize": {
             "type": "string",
             "defaultValue": "Standard_B2s",
@@ -250,6 +265,13 @@
             "defaultValue": "echo \"test-message for swarmPostUserData\" >> /tmp/test.log",
             "metadata": {
                 "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "deployWorkstation": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Flag to deploy workstation or not."
             }
         },
         "workstationVMSize": {
@@ -315,7 +337,7 @@
                 "description": "Password or ssh key for the Virtual Machine."
             }
         },
-        "windowsAdminPassword": {
+        "workstationAdminPassword": {
             "type": "securestring",
             "metadata": {
                 "description": "Password or ssh key for the Virtual Machine."
@@ -494,9 +516,9 @@
         "type": "string",
         "value": "[parameters('swarmVMSize')]"
       },
-      "windowsAdminPassword": {
+      "workstationAdminPassword": {
         "type": "string",
-        "value": "[parameters('windowsAdminPassword')]"
+        "value": "[parameters('workstationAdminPassword')]"
       },
       "workstationDataDiskSize": {
         "type": "int",
@@ -506,9 +528,9 @@
         "type": "string",
         "value": "[parameters('workstationOSType')]"
       },
-      "workstationPostUserdata": {
+      "workstationPostUserData": {
         "type": "string",
-        "value": "[parameters('workstationPostUserdata')]"
+        "value": "[parameters('workstationPostUserData')]"
       },
       "workstationPreUserData": {
         "type": "string",
