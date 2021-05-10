@@ -505,7 +505,7 @@
                         "toolTip": "Userdata to run before the default P4 userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
                         "constraints": {
-                            "required": false,
+                            "required": true,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -657,7 +657,7 @@
                         "toolTip": "Userdata to run before the default Workstation userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
                         "constraints": {
-                            "required": false,
+                            "required": true,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -675,7 +675,7 @@
                         "toolTip": "Userdata to run after the default Workstation userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
                         "constraints": {
-                            "required": false,
+                            "required": true,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -771,7 +771,7 @@
                         "toolTip": "Userdata to run before the default Hansoft userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
                         "constraints": {
-                            "required": false,
+                            "required": true,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -789,7 +789,7 @@
                         "toolTip": "Userdata to run after the default Hansoft userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
                         "constraints": {
-                            "required": false,
+                            "required": true,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -910,7 +910,7 @@
                         "toolTip": "Userdata to run before the default Swarm userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
                         "constraints": {
-                            "required": false,
+                            "required": true,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -928,7 +928,7 @@
                         "toolTip": "Userdata to run after the default Swarm userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
                         "constraints": {
-                            "required": false,
+                            "required": true,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -956,7 +956,7 @@
                         "defaultValue": "dev",
                         "toolTip": "Provide an environment name that will be used in resource names and tagging. Min 3, max 20",
                         "constraints": {
-                            "required": false,
+                            "required": true,
                             "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,4}$",
                             "validationMessage": "Environment must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
                         }
@@ -987,6 +987,7 @@
             "adminPasswordOrKey": "[coalesce(steps('PerforceServerConfig').sshKeyPairCredentials.password, steps('PerforceServerConfig').sshKeyPairCredentials.sshPublicKey)]",
             "p4VMSize": "[steps('PerforceServerConfig').p4VMSize]",
             "p4OSType": "[steps('PerforceServerConfig').p4OSType]",
+            "deployFromScratchOrSnapshot": "[steps('PerforceServerConfig').deployFromScratchOrSnapshot]",
             "p4SnapshotIDArchive": "[steps('PerforceServerConfig').p4SnapshotIDArchive.id]",
             "p4SnapshotIDJournal": "[steps('PerforceServerConfig').p4SnapshotIDJournal.id]",
             "p4SnapshotIDLog": "[steps('PerforceServerConfig').p4SnapshotIDLog.id]",

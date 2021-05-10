@@ -106,6 +106,17 @@
                 "description": "The operating system of the VM."
             }
         },
+        "deployFromScratchOrSnapshot": {
+            "type": "string",
+            "allowedValues": [
+                "scratch",
+                "snapshot"
+            ],
+            "defaultValue": "scratch",
+            "metadata": {
+                "description": "Create P4 disks from scratch or snapshot."
+            }
+        },
         "p4SnapshotIDArchive": {
             "type": "string",
             "defaultValue": "",
@@ -438,6 +449,10 @@
       "p4PreUserData": {
         "type": "string",
         "value": "[parameters('p4PreUserData')]"
+      },
+      "deployFromScratchOrSnapshot": {
+        "type": "string",
+        "value": "[parameters('deployFromScratchOrSnapshot')]"
       },
       "p4SnapshotIDArchive": {
         "type": "string",
