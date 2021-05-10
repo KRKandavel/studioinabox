@@ -404,7 +404,7 @@
         "value": "[parameters('environment')]"
       },
       "hansoftDataDiskSize": {
-        "type": "string",
+        "type": "int",
         "value": "[parameters('hansoftDataDiskSize')]"
       },
       "hansoftOSType": {
@@ -424,7 +424,7 @@
         "value": "[parameters('hansoftVMSize')]"
       },
       "p4dataDiskSize": {
-        "type": "string",
+        "type": "int",
         "value": "[parameters('p4dataDiskSize')]"
       },
       "p4OSType": {
@@ -460,7 +460,7 @@
         "value": "[parameters('p4VMSize')]"
       },
       "swarmDataDiskSize": {
-        "type": "string",
+        "type": "int",
         "value": "[parameters('swarmDataDiskSize')]"
       },
       "swarmOSType": {
@@ -484,7 +484,7 @@
         "value": "[parameters('windowsAdminPassword')]"
       },
       "workstationDataDiskSize": {
-        "type": "string",
+        "type": "int",
         "value": "[parameters('workstationDataDiskSize')]"
       },
       "workstationOSType": {
