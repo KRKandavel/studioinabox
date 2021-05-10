@@ -512,10 +512,6 @@
         "type": "string",
         "value": "[parameters('hansoftVMSize')]"
       },
-      "p4dataDiskSize": {
-        "type": "int",
-        "value": "[parameters('p4dataDiskSize')]"
-      },
       "p4OSType": {
         "type": "string",
         "value": "[parameters('p4OSType')]"
