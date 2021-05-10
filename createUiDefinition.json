@@ -547,7 +547,7 @@
                 "bladeTitle": "Windows Workstation Configuration",
                 "elements": [
                     {
-                        "name": "deployWindowsWorkstation",
+                        "name": "deployWorkstation",
                         "type": "Microsoft.Common.OptionsGroup",
                         "label": "Deploy Windows Workstation",
                         "defaultValue": "true",
