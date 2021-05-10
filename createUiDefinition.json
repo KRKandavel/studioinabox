@@ -787,7 +787,7 @@
                         "visible": true
                     },
                     {
-                        "name": "hansoftPostUserdata",
+                        "name": "hansoftPostUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Post Userdata",
                         "defaultValue": "",
