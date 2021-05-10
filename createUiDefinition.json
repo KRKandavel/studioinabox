@@ -505,15 +505,10 @@
                         "toolTip": "Userdata to run before the default P4 userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
                         "constraints": {
-                            "required": true,
-                            "validations": [
-                                {
-                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
-                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
-                                }
-                            ]
-                        },
-                        "visible": true
+                            "required": false,
+                            "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                            "validationMessage": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                        }
                     },
                     {
                         "name": "p4PostUserdata",
@@ -524,14 +519,9 @@
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
                         "constraints": {
                             "required": false,
-                            "validations": [
-                                {
-                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
-                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
-                                }
-                            ]
-                        },
-                        "visible": true
+                            "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                            "validationMessage": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                        }
                     }
                 ]
             },
