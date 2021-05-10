@@ -498,30 +498,42 @@
                         }
                     },
                     {
-                        "name": "p4PreUserdata",
+                        "name": "p4PreUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Pre Userdata",
                         "defaultValue": "",
                         "toolTip": "Userdata to run before the default P4 userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "multiLine": true,
                         "constraints": {
                             "required": false,
-                            "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
-                            "validationMessage": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
-                        }
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
                     },
                     {
-                        "name": "p4PostUserdata",
+                        "name": "p4PostUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Post Userdata",
                         "defaultValue": "",
                         "toolTip": "Userdata to run after the default P4 userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "multiLine": true,
                         "constraints": {
                             "required": false,
-                            "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
-                            "validationMessage": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
-                        }
+                            "validations": [
+                                {
+                                    "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
+                                    "message": "Only 1-60 alphanumeric characters, hyphens, spaces, periods, and colons are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
                     }
                 ]
             },
@@ -640,14 +652,15 @@
                         }
                     },
                     {
-                        "name": "windowsPreUserdata",
+                        "name": "windowsPreUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Pre Userdata",
                         "defaultValue": "",
                         "toolTip": "Userdata to run before the default Workstation userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "multiLine": true,
                         "constraints": {
-                            "required": true,
+                            "required": false,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -658,14 +671,15 @@
                         "visible": true
                     },
                     {
-                        "name": "windowsPostUserdata",
+                        "name": "windowsPostUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Post Userdata",
                         "defaultValue": "",
                         "toolTip": "Userdata to run after the default Workstation userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "multiLine": true,
                         "constraints": {
-                            "required": true,
+                            "required": false,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -754,14 +768,15 @@
                         }
                     },
                     {
-                        "name": "hansoftPreUserdata",
+                        "name": "hansoftPreUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Pre Userdata",
                         "defaultValue": "",
                         "toolTip": "Userdata to run before the default Hansoft userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "multiLine": true,
                         "constraints": {
-                            "required": true,
+                            "required": false,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -778,8 +793,9 @@
                         "defaultValue": "",
                         "toolTip": "Userdata to run after the default Hansoft userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "multiLine": true,
                         "constraints": {
-                            "required": true,
+                            "required": false,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -893,14 +909,15 @@
                         }
                     },
                     {
-                        "name": "swarmPreUserdata",
+                        "name": "swarmPreUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Pre Userdata",
                         "defaultValue": "",
                         "toolTip": "Userdata to run before the default Swarm userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "multiLine": true,
                         "constraints": {
-                            "required": true,
+                            "required": false,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -911,14 +928,15 @@
                         "visible": true
                     },
                     {
-                        "name": "swarmPostUserdata",
+                        "name": "swarmPostUserData",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Post Userdata",
                         "defaultValue": "",
                         "toolTip": "Userdata to run after the default Swarm userdata.",
                         "placeholder": "This is a multi-line text box:\nLine 1.\nLine 2.\nLine 3.",
+                        "multiLine": true,
                         "constraints": {
-                            "required": true,
+                            "required": false,
                             "validations": [
                                 {
                                     "regex": "^[a-z0-9A-Z -.:\n]{1,60}$",
@@ -992,26 +1010,26 @@
             "journalVolumeType": "[steps('PerforceServerConfig').journalVolumeType]",
             "journalVolumeSize": "[steps('PerforceServerConfig').journalVolumeSize]",
             "journalProvisionedIOPS": "[steps('PerforceServerConfig').journalProvisionedIOPS]",
-            "p4PreUserdata": "[steps('PerforceServerConfig').p4PreUserdata]",
-            "p4PostUserdata": "[steps('PerforceServerConfig').p4PostUserdata]",
+            "p4PreUserData": "[steps('PerforceServerConfig').p4PreUserData]",
+            "p4PostUserData": "[steps('PerforceServerConfig').p4PostUserData]",
             "deployHansoft": "[steps('HansoftConfig').deployHansoft]",
             "hansoftVMSize": "[steps('HansoftConfig').hansoftVMSize]",
             "hansoftOSType": "[steps('HansoftConfig').hansoftOSType]",
             "hansoftRootVolumeSize": "[steps('HansoftConfig').hansoftRootVolumeSize]",
-            "hansoftPreUserdata": "[steps('HansoftConfig').hansoftPreUserdata]",
-            "hansoftPostUserdata": "[steps('HansoftConfig').hansoftPostUserdata]",
+            "hansoftPreUserData": "[steps('HansoftConfig').hansoftPreUserData]",
+            "hansoftPostUserData": "[steps('HansoftConfig').hansoftPostUserData]",
             "swarmVMSize": "[steps('SwarmConfig').swarmVMSize]",
             "swarmOSType": "[steps('SwarmConfig').swarmOSType]",
             "swarmRootVolumeSize": "[steps('SwarmConfig').swarmRootVolumeSize]",
-            "swarmPreUserdata": "[steps('SwarmConfig').swarmPreUserdata]",
-            "swarmPostUserdata": "[steps('SwarmConfig').swarmPostUserdata]",
+            "swarmPreUserData": "[steps('SwarmConfig').swarmPreUserData]",
+            "swarmPostUserData": "[steps('SwarmConfig').swarmPostUserData]",
             "deployWindowsWorkstation": "[steps('WindowsWorkstationConfig').deployWindowsWorkstation]",
             "windowsVMSize": "[steps('WindowsWorkstationConfig').windowsVMSize]",
             "windowsOSType": "[steps('WindowsWorkstationConfig').windowsOSType]",
             "windowsAdminPassword": "[steps('WindowsWorkstationConfig').windowsAdminPassword]",
             "windowsRootVolumeSize": "[steps('WindowsWorkstationConfig').windowsRootVolumeSize]",
-            "windowsPreUserdata": "[steps('WindowsWorkstationConfig').windowsPreUserdata]",
-            "windowsPostUserdata": "[steps('WindowsWorkstationConfig').windowsPostUserdata]",
+            "windowsPreUserData": "[steps('WindowsWorkstationConfig').windowsPreUserData]",
+            "windowsPostUserData": "[steps('WindowsWorkstationConfig').windowsPostUserData]",
             "environment": "[steps('OtherParams').environment]"
         }
     }

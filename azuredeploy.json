@@ -506,9 +506,9 @@
         "type": "string",
         "value": "[parameters('workstationOSType')]"
       },
-      "workstationPostUserData": {
+      "workstationPostUserdata": {
         "type": "string",
-        "value": "[parameters('workstationPostUserData')]"
+        "value": "[parameters('workstationPostUserdata')]"
       },
       "workstationPreUserData": {
         "type": "string",
