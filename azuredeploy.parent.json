@@ -431,9 +431,18 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "adminPasswordOrKey": {
+                        "value": "[parameters('adminPasswordOrKey')]" 
+                    }, 
                     "workstationAdminPassword": {
                         "value": "[parameters('workstationAdminPassword')]" 
-                    } 
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    }
                 }
             }
         }
