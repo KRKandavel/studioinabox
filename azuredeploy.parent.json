@@ -1,0 +1,603 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for the resources."
+            }
+        },
+        "customRoleCreate": {
+            "type": "string",
+            "defaultValue": "no",
+            "allowedValues": [
+                "no",
+                "yes"
+            ],
+            "metadata": {
+                "description": "Determines whether or not a new custom rule should be created."
+            }
+        },
+        "environment": {
+            "defaultValue": "dev",
+            "type": "String"
+        },
+        "primaryZone": {
+            "defaultValue": "1",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the primary zones"
+            }
+        },
+        "secondaryZone": {
+            "defaultValue": "1",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the secondary zones"
+            }
+        },
+        "vnetName": {
+            "defaultValue": "HXVNET",
+            "type": "String"
+        },
+        "vnetAddressPrefixes": {
+            "type": "array",
+            "defaultValue": [
+                "10.0.0.0/16"
+            ],
+            "metadata": {
+                "description": "Address prefix of the virtual network"
+            }
+        },
+        "publicSubnet0Name": {
+            "defaultValue": "PublicSubnet0",
+            "type": "String"
+        },
+        "publicSubnet0": {
+            "defaultValue": "10.0.0.0/24",
+            "type": "String"
+        },
+        "publicSubnet1Name": {
+            "defaultValue": "PublicSubnet1",
+            "type": "String"
+        },
+        "publicSubnet1": {
+            "defaultValue": "10.0.1.0/24",
+            "type": "String"
+        },
+        "privateSubnet0Name": {
+            "defaultValue": "PrivateSubnet0",
+            "type": "String"
+        },
+        "privateSubnet0": {
+            "defaultValue": "10.0.2.0/24",
+            "type": "String"
+        },
+        "privateSubnet1Name": {
+            "defaultValue": "PrivateSubnet1",
+            "type": "String"
+        },
+        "privateSubnet1": {
+            "defaultValue": "10.0.3.0/24",
+            "type": "String"
+        },
+        "nsgIPRangeToPermit": {
+            "defaultValue": "1.1.1.1/32",
+            "type": "String"
+        },
+        "p4VMSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
+            }
+        },
+        "p4OSType": {
+            "type": "string",
+            "allowedValues": [
+                "Ubuntu 18.04 LTS",
+                "CentOS 7.x",
+                "RHEL 7.x"
+            ],
+            "defaultValue": "Ubuntu 18.04 LTS",
+            "metadata": {
+                "description": "The operating system of the VM."
+            }
+        },
+        "deployFromScratchOrSnapshot": {
+            "type": "string",
+            "allowedValues": [
+                "scratch",
+                "snapshot"
+            ],
+            "defaultValue": "scratch",
+            "metadata": {
+                "description": "Create P4 disks from scratch or snapshot."
+            }
+        },
+        "p4SnapshotIDArchive": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the depot disk"
+            }
+        },
+        "p4SnapshotIDJournal": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the journal disk"
+            }
+        },
+        "p4SnapshotIDLog": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the log disk"
+            }
+        },
+        "p4SnapshotIDMetadata": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the metadata disk"
+            }
+        },
+        "depotDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "depotDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "logDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "logDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "metadataDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "metadataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "journalDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "journalDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "p4PreUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for p4PreUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "p4PostUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for p4PostUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "deployHansoft": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Flag to deploy workstation or not."
+            }
+        },
+        "hansoftVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
+            }
+        },
+        "hansoftOSType": {
+            "type": "string",
+            "allowedValues": [
+                "Ubuntu 18.04 LTS",
+                "CentOS 7.x",
+                "RHEL 7.x"
+            ],
+            "defaultValue": "Ubuntu 18.04 LTS",
+            "metadata": {
+                "description": "The operating system of the VM."
+            }
+        },
+        "hansoftDataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "hansoftPreUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for hansoftPreUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "hansoftPostUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for hansoftPostUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "deploySwarm": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Flag to deploy Swarm or not."
+            }
+        },
+
+        "swarmVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
+            }
+        },
+        "swarmOSType": {
+            "type": "string",
+            "allowedValues": [
+                "Ubuntu 18.04 LTS",
+                "CentOS 7.x",
+                "RHEL 7.x"
+            ],
+            "defaultValue": "Ubuntu 18.04 LTS",
+            "metadata": {
+                "description": "The operating system of the VM."
+            }
+        },
+        "swarmDataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "swarmPreUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for swarmPreUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "swarmPostUserData": {
+            "type": "string",
+            "defaultValue": "echo \"test-message for swarmPostUserData\" >> /tmp/test.log",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "deployWorkstation": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Flag to deploy workstation or not."
+            }
+        },
+        "workstationVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
+            }
+        },
+        "workstationOSType": {
+            "type": "string",
+            "allowedValues": [
+                "Windows Server 2019"
+            ],
+            "defaultValue": "Windows Server 2019",
+            "metadata": {
+                "description": "The operating system of the VM."
+            }
+        },
+        "workstationDataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB) to hold your metadata, logs and depot (archive files). This can be any value up to 2TB (2048 GB)."
+            }
+        },
+        "workstationPreUserData": {
+            "type": "string",
+            "defaultValue": "Write-Host \"Running PreUserData\" | Out-File c:\\azuredata.out -Append",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "workstationPostUserData": {
+            "type": "string",
+            "defaultValue": "Write-Host \"Running PostUserData\" | Out-File c:\\azuredata.out -Append",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "defaultValue": "azureuser",
+            "metadata": {
+                "description": "Admin username for Virtual Machine"
+            }
+        },
+        "authenticationType": {
+            "type": "string",
+            "defaultValue": "sshPublicKey",
+            "allowedValues": [
+                "password",
+                "sshPublicKey"
+            ],
+            "metadata": {
+                "description": "Type of authentication to use on the Virtual Machine."
+            }
+        },
+        "adminPasswordOrKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "workstationAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            },
+            "defaultValue": ""
+        }
+    },
+    "variables": {
+        "childTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('azuredeploy.json', parameters('_artifactsLocationSasToken')))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployChildTemplate",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('childTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "workstationAdminPassword": {
+                        "value": "[parameters('workstationAdminPassword')]" 
+                    } 
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "location": {
+            "type": "string",
+            "value": "[parameters('location')]"
+        },
+        "primaryZone": {
+            "type": "string",
+            "value": "[parameters('primaryZone')]"
+        },
+        "secondaryZone": {
+            "type": "string",
+            "value": "[parameters('secondaryZone')]"
+        },
+        "vnetName": {
+            "type": "string",
+            "value": "[parameters('vnetName')]"
+        },
+        "vnetAddressPrefixes": {
+            "type": "array",
+            "value": "[parameters('vnetAddressPrefixes')]"
+        },
+        "publicSubnet0Name": {
+            "type": "string",
+            "value": "[parameters('publicSubnet0Name')]"
+        },
+        "publicSubnet0": {
+            "type": "string",
+            "value": "[parameters('publicSubnet0')]"
+        },
+        "publicSubnet1Name": {
+            "type": "string",
+            "value": "[parameters('publicSubnet1Name')]"
+        },
+        "publicSubnet1": {
+            "type": "string",
+            "value": "[parameters('publicSubnet1')]"
+        },
+        "nsgIPRangeToPermit": {
+            "type": "string",
+            "value": "[parameters('nsgIPRangeToPermit')]"
+        },
+        "adminUsername": {
+            "type": "string",
+            "value": "[parameters('adminUsername')]"
+        },
+        "adminPasswordOrKey": {
+            "type": "string",
+            "value": "[parameters('adminPasswordOrKey')]"
+        },
+        "authenticationType": {
+            "type": "string",
+            "value": "[parameters('authenticationType')]"
+        },
+        "customRoleCreate": {
+            "type": "string",
+            "value": "[parameters('customRoleCreate')]"
+        },
+        "environment": {
+            "type": "string",
+            "value": "[parameters('environment')]"
+        },
+        "hansoftDataDiskSize": {
+            "type": "int",
+            "value": "[parameters('hansoftDataDiskSize')]"
+        },
+        "hansoftOSType": {
+            "type": "string",
+            "value": "[parameters('hansoftOSType')]"
+        },
+        "hansoftPostUserData": {
+            "type": "string",
+            "value": "[parameters('hansoftPostUserData')]"
+        },
+        "hansoftPreUserData": {
+            "type": "string",
+            "value": "[parameters('hansoftPreUserData')]"
+        },
+        "hansoftVMSize": {
+            "type": "string",
+            "value": "[parameters('hansoftVMSize')]"
+        },
+        "p4OSType": {
+            "type": "string",
+            "value": "[parameters('p4OSType')]"
+        },
+        "p4PostUserData": {
+            "type": "string",
+            "value": "[parameters('p4PostUserData')]"
+        },
+        "p4PreUserData": {
+            "type": "string",
+            "value": "[parameters('p4PreUserData')]"
+        },
+        "deployFromScratchOrSnapshot": {
+            "type": "string",
+            "value": "[parameters('deployFromScratchOrSnapshot')]"
+        },
+        "p4SnapshotIDArchive": {
+            "type": "string",
+            "value": "[parameters('p4SnapshotIDArchive')]"
+        },
+        "p4SnapshotIDJournal": {
+            "type": "string",
+            "value": "[parameters('p4SnapshotIDJournal')]"
+        },
+        "p4SnapshotIDLog": {
+            "type": "string",
+            "value": "[parameters('p4SnapshotIDLog')]"
+        },
+        "p4SnapshotIDMetadata": {
+            "type": "string",
+            "value": "[parameters('p4SnapshotIDMetadata')]"
+        },
+        "p4VMSize": {
+            "type": "string",
+            "value": "[parameters('p4VMSize')]"
+        },
+        "swarmDataDiskSize": {
+            "type": "int",
+            "value": "[parameters('swarmDataDiskSize')]"
+        },
+        "swarmOSType": {
+            "type": "string",
+            "value": "[parameters('swarmOSType')]"
+        },
+        "swarmPostUserData": {
+            "type": "string",
+            "value": "[parameters('swarmPostUserData')]"
+        },
+        "swarmPreUserData": {
+            "type": "string",
+            "value": "[parameters('swarmPreUserData')]"
+        },
+        "swarmVMSize": {
+            "type": "string",
+            "value": "[parameters('swarmVMSize')]"
+        },
+        "workstationAdminPassword": {
+            "type": "string",
+            "value": "[parameters('workstationAdminPassword')]"
+        },
+        "workstationDataDiskSize": {
+            "type": "int",
+            "value": "[parameters('workstationDataDiskSize')]"
+        },
+        "workstationOSType": {
+            "type": "string",
+            "value": "[parameters('workstationOSType')]"
+        },
+        "workstationPostUserData": {
+            "type": "string",
+            "value": "[parameters('workstationPostUserData')]"
+        },
+        "workstationPreUserData": {
+            "type": "string",
+            "value": "[parameters('workstationPreUserData')]"
+        },
+        "workstationVMSize": {
+            "type": "string",
+            "value": "[parameters('workstationVMSize')]"
+        }
+    }
+}
