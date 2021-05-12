@@ -9,6 +9,10 @@
                 "description": "Location for the resources."
             }
         },
+        "environment": {
+            "defaultValue": "dev",
+            "type": "String"
+        },
         "customRoleCreate": {
             "type": "string",
             "defaultValue": "no",
@@ -20,9 +24,16 @@
                 "description": "Determines whether or not a new custom rule should be created."
             }
         },
-        "environment": {
-            "defaultValue": "dev",
-            "type": "String"
+        "availabilityOption": {
+            "type": "string",
+            "allowedValues": [
+                "region",
+                "zone"
+            ],
+            "defaultValue": "zone",
+            "metadata": {
+                "description": "The zone to deploy Perforce."
+            }
         },
         "primaryZone": {
             "defaultValue": "1",
@@ -32,7 +43,7 @@
             }
         },
         "secondaryZone": {
-            "defaultValue": "1",
+            "defaultValue": "2",
             "type": "String",
             "metadata": {
                 "description": "Name of the secondary zones"
@@ -87,23 +98,54 @@
             "defaultValue": "1.1.1.1/32",
             "type": "String"
         },
+        "p4AdminUser": {
+            "type": "string",
+            "defaultValue": "azureuser",
+            "metadata": {
+                "description": "Admin username for Virtual Machine"
+            }
+        },
+        "p4SSHType": {
+            "type": "string",
+            "allowedValues": [
+                "existingkey",
+                "publickey"
+            ],
+            "defaultValue": "publickey",
+            "metadata": {
+                "description": "The key to use for Linux OS."
+            }
+        },
+        "p4AdminKeyID": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "P4 Admin Key ID."
+            }
+        },
+        "p4AuthType": {
+            "type": "string",
+            "defaultValue": "sshPublicKey",
+            "allowedValues": [
+                "password",
+                "sshPublicKey"
+            ],
+            "metadata": {
+                "description": "Type of authentication to use on the Virtual Machine."
+            }
+        },
+        "p4AdminPublicKey": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
         "p4VMSize": {
             "type": "string",
             "defaultValue": "Standard_B2s",
             "metadata": {
                 "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
-            }
-        },
-        "p4OSType": {
-            "type": "string",
-            "allowedValues": [
-                "Ubuntu 18.04 LTS",
-                "CentOS 7.x",
-                "RHEL 7.x"
-            ],
-            "defaultValue": "Ubuntu 18.04 LTS",
-            "metadata": {
-                "description": "The operating system of the VM."
             }
         },
         "deployFromScratchOrSnapshot": {
@@ -237,19 +279,7 @@
                 "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
             }
         },
-        "hansoftOSType": {
-            "type": "string",
-            "allowedValues": [
-                "Ubuntu 18.04 LTS",
-                "CentOS 7.x",
-                "RHEL 7.x"
-            ],
-            "defaultValue": "Ubuntu 18.04 LTS",
-            "metadata": {
-                "description": "The operating system of the VM."
-            }
-        },
-        "hansoftDataDiskSize": {
+        "hansoftRootDiskSize": {
             "type": "int",
             "minValue": 10,
             "maxValue": 2048,
@@ -279,7 +309,6 @@
                 "description": "Flag to deploy Swarm or not."
             }
         },
-
         "swarmVMSize": {
             "type": "string",
             "defaultValue": "Standard_B2s",
@@ -287,19 +316,7 @@
                 "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
             }
         },
-        "swarmOSType": {
-            "type": "string",
-            "allowedValues": [
-                "Ubuntu 18.04 LTS",
-                "CentOS 7.x",
-                "RHEL 7.x"
-            ],
-            "defaultValue": "Ubuntu 18.04 LTS",
-            "metadata": {
-                "description": "The operating system of the VM."
-            }
-        },
-        "swarmDataDiskSize": {
+        "swarmRootDiskSize": {
             "type": "int",
             "minValue": 10,
             "maxValue": 2048,
@@ -336,17 +353,20 @@
                 "description": "Please select the size of the VM you wish to deploy.  Read more about sizing options here: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/sizes-general. Compute optimized instances recommended for production use, e.g. Fsv2 series"
             }
         },
-        "workstationOSType": {
+        "workstationAdminUser": {
             "type": "string",
-            "allowedValues": [
-                "Windows Server 2019"
-            ],
-            "defaultValue": "Windows Server 2019",
+            "defaultValue": "azureuser",
             "metadata": {
-                "description": "The operating system of the VM."
+                "description": "Admin username for Virtual Machine"
             }
         },
-        "workstationDataDiskSize": {
+        "workstationAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "workstationRootDiskSize": {
             "type": "int",
             "minValue": 10,
             "maxValue": 2048,
@@ -367,36 +387,6 @@
             "defaultValue": "Write-Host \"Running PostUserData\" | Out-File c:\\azuredata.out -Append",
             "metadata": {
                 "description": "Userdata to run after the default P4 userdata"
-            }
-        },
-        "adminUsername": {
-            "type": "string",
-            "defaultValue": "azureuser",
-            "metadata": {
-                "description": "Admin username for Virtual Machine"
-            }
-        },
-        "authenticationType": {
-            "type": "string",
-            "defaultValue": "sshPublicKey",
-            "allowedValues": [
-                "password",
-                "sshPublicKey"
-            ],
-            "metadata": {
-                "description": "Type of authentication to use on the Virtual Machine."
-            }
-        },
-        "adminPasswordOrKey": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Password or ssh key for the Virtual Machine."
-            }
-        },
-        "workstationAdminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Password or ssh key for the Virtual Machine."
             }
         },
         "_artifactsLocation": {
