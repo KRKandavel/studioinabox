@@ -292,6 +292,9 @@
                                     "hidePassword": true,
                                     "hideConfirmation": true
                                 },
+                                "constraints": {
+                                    "required": true
+                                },
                                 "osPlatform": "Linux",
                                 "visible": "[equals(steps('PerforceServerConfig').linuxCredential.p4SSHType, 'publickey')]"
                             }
@@ -1011,9 +1014,7 @@
             "p4AdminUser": "[steps('PerforceServerConfig').linuxCredential.adminUsername]",
             "p4VMSize": "[steps('PerforceServerConfig').p4VMSize]",
             "p4SSHType": "[steps('PerforceServerConfig').linuxCredential.p4SSHType]",
-            "p4AdminKeyID": "[steps('PerforceServerConfig').linuxCredential.adminExistKey.id]",
-            "authenticationType": "[steps('PerforceServerConfig').linuxCredential.adminPublicKey.authenticationType]",
-            "adminPasswordOrKey": "[coalesce(steps('PerforceServerConfig').linuxCredential.adminPublicKey.password, steps('PerforceServerConfig').linuxCredential.adminPublicKey.sshPublicKey)]",
+            "adminKeyIDOrKey": "[coalesce(steps('PerforceServerConfig').linuxCredential.adminExistKey.id, steps('PerforceServerConfig').linuxCredential.adminPublicKey.sshPublicKey)]",
             "deployFromScratchOrSnapshot": "[steps('PerforceServerConfig').deployFromScratchOrSnapshot]",
             "p4SnapshotIDArchive": "[steps('PerforceServerConfig').p4SnapshotIDArchive.id]",
             "p4SnapshotIDJournal": "[steps('PerforceServerConfig').p4SnapshotIDJournal.id]",
