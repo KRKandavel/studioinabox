@@ -422,165 +422,149 @@
         }
     ],
     "outputs": {
-      "location": {
-        "type": "string",
-        "value": "[parameters('location')]"
-      },
-      "primaryZone": {
-        "type": "string",
-        "value": "[parameters('primaryZone')]"
-      },
-      "secondaryZone": {
-        "type": "string",
-        "value": "[parameters('secondaryZone')]"
-      },
-      "vnetName": {
-        "type": "string",
-        "value": "[parameters('vnetName')]"
-      },
-      "vnetAddressPrefixes": {
-        "type": "array",
-        "value": "[parameters('vnetAddressPrefixes')]"
-      },
-      "publicSubnet0Name": {
-        "type": "string",
-        "value": "[parameters('publicSubnet0Name')]"
-      },
-      "publicSubnet0": {
-        "type": "string",
-        "value": "[parameters('publicSubnet0')]"
-      },
-      "publicSubnet1Name": {
-        "type": "string",
-        "value": "[parameters('publicSubnet1Name')]"
-      },
-      "publicSubnet1": {
-        "type": "string",
-        "value": "[parameters('publicSubnet1')]"
-      },
-      "nsgIPRangeToPermit": {
-        "type": "string",
-        "value": "[parameters('nsgIPRangeToPermit')]"
-      },
-      "adminUsername": {
-        "type": "string",
-        "value": "[parameters('adminUsername')]"
-      },
-      "adminPasswordOrKey": {
-        "type": "string",
-        "value": "[parameters('adminPasswordOrKey')]"
-      },
-      "authenticationType": {
-        "type": "string",
-        "value": "[parameters('authenticationType')]"
-      },
-      "customRoleCreate": {
-        "type": "string",
-        "value": "[parameters('customRoleCreate')]"
-      },
-      "environment": {
-        "type": "string",
-        "value": "[parameters('environment')]"
-      },
-      "hansoftDataDiskSize": {
-        "type": "int",
-        "value": "[parameters('hansoftDataDiskSize')]"
-      },
-      "hansoftOSType": {
-        "type": "string",
-        "value": "[parameters('hansoftOSType')]"
-      },
-      "hansoftPostUserData": {
-        "type": "string",
-        "value": "[parameters('hansoftPostUserData')]"
-      },
-      "hansoftPreUserData": {
-        "type": "string",
-        "value": "[parameters('hansoftPreUserData')]"
-      },
-      "hansoftVMSize": {
-        "type": "string",
-        "value": "[parameters('hansoftVMSize')]"
-      },
-      "p4OSType": {
-        "type": "string",
-        "value": "[parameters('p4OSType')]"
-      },
-      "p4PostUserData": {
-        "type": "string",
-        "value": "[parameters('p4PostUserData')]"
-      },
-      "p4PreUserData": {
-        "type": "string",
-        "value": "[parameters('p4PreUserData')]"
-      },
-      "deployFromScratchOrSnapshot": {
-        "type": "string",
-        "value": "[parameters('deployFromScratchOrSnapshot')]"
-      },
-      "p4SnapshotIDArchive": {
-        "type": "string",
-        "value": "[parameters('p4SnapshotIDArchive')]"
-      },
-      "p4SnapshotIDJournal": {
-        "type": "string",
-        "value": "[parameters('p4SnapshotIDJournal')]"
-      },
-      "p4SnapshotIDLog": {
-        "type": "string",
-        "value": "[parameters('p4SnapshotIDLog')]"
-      },
-      "p4SnapshotIDMetadata": {
-        "type": "string",
-        "value": "[parameters('p4SnapshotIDMetadata')]"
-      },
-      "p4VMSize": {
-        "type": "string",
-        "value": "[parameters('p4VMSize')]"
-      },
-      "swarmDataDiskSize": {
-        "type": "int",
-        "value": "[parameters('swarmDataDiskSize')]"
-      },
-      "swarmOSType": {
-        "type": "string",
-        "value": "[parameters('swarmOSType')]"
-      },
-      "swarmPostUserData": {
-        "type": "string",
-        "value": "[parameters('swarmPostUserData')]"
-      },
-      "swarmPreUserData": {
-        "type": "string",
-        "value": "[parameters('swarmPreUserData')]"
-      },
-      "swarmVMSize": {
-        "type": "string",
-        "value": "[parameters('swarmVMSize')]"
-      },
-      "workstationAdminPassword": {
-        "type": "string",
-        "value": "[parameters('workstationAdminPassword')]"
-      },
-      "workstationDataDiskSize": {
-        "type": "int",
-        "value": "[parameters('workstationDataDiskSize')]"
-      },
-      "workstationOSType": {
-        "type": "string",
-        "value": "[parameters('workstationOSType')]"
-      },
-      "workstationPostUserData": {
-        "type": "string",
-        "value": "[parameters('workstationPostUserData')]"
-      },
-      "workstationPreUserData": {
-        "type": "string",
-        "value": "[parameters('workstationPreUserData')]"
-      },
-      "workstationVMSize": {
-        "type": "string",
-        "value": "[parameters('workstationVMSize')]"
-      }
+        "location": {
+            "type": "string",
+            "value": "[parameters('location')]"
+        },
+        "primaryZone": {
+            "type": "string",
+            "value": "[parameters('primaryZone')]"
+        },
+        "secondaryZone": {
+            "type": "string",
+            "value": "[parameters('secondaryZone')]"
+        },
+        "vnetName": {
+            "type": "string",
+            "value": "[parameters('vnetName')]"
+        },
+        "vnetAddressPrefixes": {
+            "type": "array",
+            "value": "[parameters('vnetAddressPrefixes')]"
+        },
+        "publicSubnet0Name": {
+            "type": "string",
+            "value": "[parameters('publicSubnet0Name')]"
+        },
+        "publicSubnet0": {
+            "type": "string",
+            "value": "[parameters('publicSubnet0')]"
+        },
+        "publicSubnet1Name": {
+            "type": "string",
+            "value": "[parameters('publicSubnet1Name')]"
+        },
+        "publicSubnet1": {
+            "type": "string",
+            "value": "[parameters('publicSubnet1')]"
+        },
+        "nsgIPRangeToPermit": {
+            "type": "string",
+            "value": "[parameters('nsgIPRangeToPermit')]"
+        },
+        "adminUsername": {
+            "type": "string",
+            "value": "[parameters('p4AdminUser')]"
+        },
+        "adminPasswordOrKey": {
+            "type": "string",
+            "value": "[parameters('p4AdminPublicKey')]"
+        },
+        "authenticationType": {
+            "type": "string",
+            "value": "[parameters('p4AuthType')]"
+        },
+        "customRoleCreate": {
+            "type": "string",
+            "value": "[parameters('customRoleCreate')]"
+        },
+        "environment": {
+            "type": "string",
+            "value": "[parameters('environment')]"
+        },
+        "hansoftDataDiskSize": {
+            "type": "int",
+            "value": "[parameters('hansoftRootDiskSize')]"
+        },
+        "hansoftPostUserData": {
+            "type": "string",
+            "value": "[parameters('hansoftPostUserData')]"
+        },
+        "hansoftPreUserData": {
+            "type": "string",
+            "value": "[parameters('hansoftPreUserData')]"
+        },
+        "hansoftVMSize": {
+            "type": "string",
+            "value": "[parameters('hansoftVMSize')]"
+        },
+        "p4PostUserData": {
+            "type": "string",
+            "value": "[parameters('p4PostUserData')]"
+        },
+        "p4PreUserData": {
+            "type": "string",
+            "value": "[parameters('p4PreUserData')]"
+        },
+        "deployFromScratchOrSnapshot": {
+            "type": "string",
+            "value": "[parameters('deployFromScratchOrSnapshot')]"
+        },
+        "p4SnapshotIDArchive": {
+            "type": "string",
+            "value": "[parameters('p4SnapshotIDArchive')]"
+        },
+        "p4SnapshotIDJournal": {
+            "type": "string",
+            "value": "[parameters('p4SnapshotIDJournal')]"
+        },
+        "p4SnapshotIDLog": {
+            "type": "string",
+            "value": "[parameters('p4SnapshotIDLog')]"
+        },
+        "p4SnapshotIDMetadata": {
+            "type": "string",
+            "value": "[parameters('p4SnapshotIDMetadata')]"
+        },
+        "p4VMSize": {
+            "type": "string",
+            "value": "[parameters('p4VMSize')]"
+        },
+        "swarmDataDiskSize": {
+            "type": "int",
+            "value": "[parameters('swarmRootDiskSize')]"
+        },
+        "swarmPostUserData": {
+            "type": "string",
+            "value": "[parameters('swarmPostUserData')]"
+        },
+        "swarmPreUserData": {
+            "type": "string",
+            "value": "[parameters('swarmPreUserData')]"
+        },
+        "swarmVMSize": {
+            "type": "string",
+            "value": "[parameters('swarmVMSize')]"
+        },
+        "workstationAdminPassword": {
+            "type": "string",
+            "value": "[parameters('workstationAdminPassword')]"
+        },
+        "workstationDataDiskSize": {
+            "type": "int",
+            "value": "[parameters('workstationRootDiskSize')]"
+        },
+        "workstationPostUserData": {
+            "type": "string",
+            "value": "[parameters('workstationPostUserData')]"
+        },
+        "workstationPreUserData": {
+            "type": "string",
+            "value": "[parameters('workstationPreUserData')]"
+        },
+        "workstationVMSize": {
+            "type": "string",
+            "value": "[parameters('workstationVMSize')]"
+        }
     }
 }
