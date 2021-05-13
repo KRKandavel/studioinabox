@@ -49,6 +49,24 @@
                 "description": "Name of the secondary zones"
             }
         },
+        "vnetNewOrExisting": {
+            "type": "string",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "defaultValue": "new",
+            "metadata": {
+                "description": "vnet is new or existing."
+            }
+        },
+        "vnetResourceGroupName": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "VNET resource group name."
+            }
+        },
         "vnetName": {
             "defaultValue": "HXVNET",
             "type": "String"
@@ -105,13 +123,13 @@
                 "description": "Admin username for Virtual Machine"
             }
         },
-        "p4SSHType": {
+        "p4SSHSource": {
             "type": "string",
             "allowedValues": [
-                "existingkey",
-                "publickey"
+                "existing",
+                "public"
             ],
-            "defaultValue": "publickey",
+            "defaultValue": "public",
             "metadata": {
                 "description": "The key to use for Linux OS."
             }
@@ -123,7 +141,7 @@
                 "description": "P4 Admin Key ID."
             }
         },
-        "p4AuthType": {
+        "p4AdminAuthType": {
             "type": "string",
             "defaultValue": "sshPublicKey",
             "allowedValues": [
@@ -402,6 +420,14 @@
                 "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
             },
             "defaultValue": ""
+        },
+        "tagsByResource": {
+            "type": "object",
+            "defaultValue": [
+            ],
+            "metadata": {
+                "description": "tags by resources to update in resources"
+            }
         }
     },
     "variables": {
