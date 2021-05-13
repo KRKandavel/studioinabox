@@ -7,6 +7,12 @@
         },
         "p4AdminPublicKey": {
             "value": "GEN-SSH-PUB-KEY"
+        },
+        "adminPublicKey": {
+            "value": "" // TODO: Fill in parameter value
+        },
+        "workstationAdminPassword": {
+            "value": "" // TODO: Fill in parameter value
         }
     }
 }

@@ -387,7 +387,7 @@
                 "description": "Type of authentication to use on the Virtual Machine."
             }
         },
-        "adminPasswordOrKey": {
+        "adminPublicKey": {
             "type": "securestring",
             "metadata": {
                 "description": "Password or ssh key for the Virtual Machine."
@@ -431,8 +431,8 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "adminPasswordOrKey": {
-                        "value": "[parameters('adminPasswordOrKey')]" 
+                    "adminPublicKey": {
+                        "value": "[parameters('adminPublicKey')]" 
                     }, 
                     "workstationAdminPassword": {
                         "value": "[parameters('workstationAdminPassword')]" 
@@ -492,9 +492,9 @@
             "type": "string",
             "value": "[parameters('adminUsername')]"
         },
-        "adminPasswordOrKey": {
+        "adminPublicKey": {
             "type": "string",
-            "value": "[parameters('adminPasswordOrKey')]"
+            "value": "[parameters('adminPublicKey')]"
         },
         "authenticationType": {
             "type": "string",
