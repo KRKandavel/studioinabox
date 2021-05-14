@@ -223,7 +223,7 @@
                         "label": "Linux Account Details",
                         "elements": [
                             {
-                                "name": "p4SSHType",
+                                "name": "p4SSHSource",
                                 "type": "Microsoft.Common.DropDown",
                                 "label": "SSH public key source",
                                 "defaultValue": "Use existing key stored in Azure",
@@ -232,11 +232,11 @@
                                     "allowedValues": [
                                         {
                                             "label": "Use existing key stored in Azure",
-                                            "value": "existingkey"
+                                            "value": "existing"
                                         },
                                         {
                                             "label": "Use existig public key",
-                                            "value": "publickey"
+                                            "value": "public"
                                         }
                                     ],
                                     "required": true
@@ -247,14 +247,14 @@
                                 "name": "adminUsername",
                                 "type": "Microsoft.Compute.UserNameTextBox",
                                 "label": "User name",
-                                "defaultValue": "perforce",
+                                "defaultValue": "centos",
                                 "toolTip": "Specify a user for accessing the virtual machines within your cluster. Must be a valid Ubuntu username",
                                 "constraints": {
                                     "required": true,
                                     "regex": "^(?!(?:adm|admin|audio|backup|bin|cdrom|crontab|daemon|dialout|dip|disk|fax|floppy|fuse|games|gnats|irc|kmem|landscape|libuuid|list|lp|mail|man|messagebus|mlocate|netdev|news|nobody|nogroup|operator|plugdev|proxy|root|sasl|shadow|src|ssh|sshd|staff|sudo|sync|sys|syslog|tape|tty|users|utmp|uucp|video|voice|whoopsie|www\\-data)$)\\w+$",
                                     "validationMessage": "Username must not be a reserved Ubuntu username"
                                 },
-                                "visible": true,
+                                "visible": false,
                                 "osPlatform": "Linux"
                             },
                             {
@@ -272,7 +272,7 @@
                                 "constraints": {
                                     "required": true
                                 },
-                                "visible": "[equals(steps('PerforceServerConfig').linuxCredential.p4SSHType, 'existingkey')]"
+                                "visible": "[equals(steps('PerforceServerConfig').linuxCredential.p4SSHSource, 'existing')]"
                             },
                             {
                                 "name": "adminPublicKey",
@@ -281,7 +281,7 @@
                                     "authenticationType": "Authentication type",
                                     "password": "Password",
                                     "confirmPassword": "Confirm password",
-                                    "sshPublicKey": "SSH public key"
+                                    "sshPublicKey": "SSH public key for built-in user 'centos'"
                                 },
                                 "toolTip": {
                                     "authenticationType": "Choose Authentication type Password or PublicKey(SSH).",
@@ -296,7 +296,7 @@
                                     "required": true
                                 },
                                 "osPlatform": "Linux",
-                                "visible": "[equals(steps('PerforceServerConfig').linuxCredential.p4SSHType, 'publickey')]"
+                                "visible": "[equals(steps('PerforceServerConfig').linuxCredential.p4SSHSource, 'public')]"
                             }
                         ]
                     },
@@ -894,21 +894,22 @@
                                     "regex": "^(?!(?:administrator|guest|www\\-data)$)\\w+$",
                                     "validationMessage": "Username must not be a reserved Windows username"
                                 },
-                                "osPlatform": "Windows"
+                                "osPlatform": "Windows",
+                                "visible": false
                             },
                             {
                                 "name": "adminPassword",
                                 "type": "Microsoft.Compute.CredentialsCombo",
                                 "label": {
-                                    "password": "Password",
+                                    "password": "Password for built-in user 'Perforce'",
                                     "confirmPassword": "Confirm password"
                                 },
                                 "toolTip": {
-                                    "password": ""
+                                    "password": "Enter password for built-in user 'Perforce'"
                                 },
                                 "constraints": {
                                     "required": true,
-                                    "customPasswordRegex": "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{12,}$",
+                                    "customPasswordRegex": "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$",
                                     "customValidationMessage": "The password must be alphanumeric, contain at least 12 characters, and have at least 1 letter and 1 number."
                                 },
                                 "options": {
@@ -1013,7 +1014,7 @@
             "nsgIPRangeToPermit": "[steps('VirtualNetworkConfig').ipRangeToPermitFrom]",
             "p4AdminUser": "[steps('PerforceServerConfig').linuxCredential.adminUsername]",
             "p4VMSize": "[steps('PerforceServerConfig').p4VMSize]",
-            "p4SSHType": "[steps('PerforceServerConfig').linuxCredential.p4SSHType]",
+            "p4SSHSource": "[steps('PerforceServerConfig').linuxCredential.p4SSHSource]",
             "p4AdminKeyID": "[steps('PerforceServerConfig').linuxCredential.adminExistKey.id]",
             "authenticationType": "[steps('PerforceServerConfig').linuxCredential.adminPublicKey.authenticationType]",
             "adminPasswordOrKey": "[steps('PerforceServerConfig').linuxCredential.adminPublicKey.sshPublicKey]",
