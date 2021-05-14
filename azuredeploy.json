@@ -36,14 +36,14 @@
             }
         },
         "primaryZone": {
-            "defaultValue": "1",
+            "defaultValue": "",
             "type": "String",
             "metadata": {
                 "description": "Name of the primary zones"
             }
         },
         "secondaryZone": {
-            "defaultValue": "2",
+            "defaultValue": "",
             "type": "String",
             "metadata": {
                 "description": "Name of the secondary zones"
@@ -118,7 +118,7 @@
         },
         "p4AdminUser": {
             "type": "string",
-            "defaultValue": "azureuser",
+            "defaultValue": "centos",
             "metadata": {
                 "description": "Admin username for Virtual Machine"
             }
@@ -373,7 +373,7 @@
         },
         "workstationAdminUser": {
             "type": "string",
-            "defaultValue": "azureuser",
+            "defaultValue": "perforce",
             "metadata": {
                 "description": "Admin username for Virtual Machine"
             }
@@ -423,8 +423,7 @@
         },
         "tagsByResource": {
             "type": "object",
-            "defaultValue": [
-            ],
+            "defaultValue": {},
             "metadata": {
                 "description": "tags by resources to update in resources"
             }
@@ -492,13 +491,13 @@
             "type": "string",
             "value": "[parameters('p4AdminUser')]"
         },
-        "adminPublicKey": {
+        "p4AdminPublicKey": {
             "type": "string",
             "value": "[parameters('p4AdminPublicKey')]"
         },
         "authenticationType": {
             "type": "string",
-            "value": "[parameters('p4AuthType')]"
+            "value": "[parameters('p4AdminAuthType')]"
         },
         "customRoleCreate": {
             "type": "string",

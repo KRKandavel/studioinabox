@@ -1,18 +1,160 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "p4AdminUser": {
-            "value": "GEN-UNIQUE"
+    "location": {
+      "value": "southeastasia"
+    },
+    "environment": {
+      "value": "dev"
+    },
+    "availabilityOption": {
+      "value": "zone"
+    },
+    "primaryZone": {
+      "value": "1"
+    },
+    "secondaryZone": {
+      "value": "2"
+    },
+    "vnetNewOrExisting": {
+      "value": "new"
+    },
+    "vnetName": {
+      "value": "HXVNET"
+    },
+    "vnetAddressPrefixes": {
+      "value": [
+        "10.129.0.0/16"
+      ]
+    },
+    "publicSubnet0Name": {
+      "value": "PublicSubnet0"
+    },
+    "publicSubnet0": {
+      "value": "10.129.0.0/24"
+    },
+    "publicSubnet1Name": {
+      "value": "PublicSubnet1"
+    },
+    "publicSubnet1": {
+      "value": "10.129.1.0/24"
+    },
+    "privateSubnet0Name": {
+      "value": "PrivateSubnet0"
+    },
+    "privateSubnet0": {
+      "value": "10.129.2.0/24"
+    },
+    "privateSubnet1Name": {
+      "value": "PrivateSubnet1"
+    },
+    "privateSubnet1": {
+      "value": "10.129.3.0/24"
+    },
+    "vnetResourceGroupName": {
+      "value": "studio13"
+    },
+    "nsgIPRangeToPermit": {
+      "value": "1.1.1.1/32"
+    },
+    "p4VMSize": {
+      "value": "Standard_D1_v2"
+    },
+    "p4SSHSource": {
+      "value": "existing"
+    },
+    "p4AdminKeyID": {
+      "value": "/subscriptions/cc52d2b2-77d2-45ff-aec9-da553c829eef/resourceGroups/sshkeyrg/providers/Microsoft.Compute/sshPublicKeys/sshnewkey"
+    },
+    "deployFromScratchOrSnapshot": {
+      "value": "scratch"
+    },
+    "depotDiskType": {
+      "value": "StandardSSD_LRS"
+    },
+    "depotDiskSize": {
+      "value": 1024
+    },
+    "logDiskType": {
+      "value": "StandardSSD_LRS"
+    },
+    "logDiskSize": {
+      "value": 1024
+    },
+    "metadataDiskType": {
+      "value": "StandardSSD_LRS"
+    },
+    "metadataDiskSize": {
+      "value": 1024
+    },
+    "journalDiskType": {
+      "value": "StandardSSD_LRS"
+    },
+    "journalDiskSize": {
+      "value": 1024
+    },
+    "p4PreUserData": {
+      "value": "#main\n#line1"
+    },
+    "p4PostUserData": {
+      "value": "#main\n#line1"
+    },
+    "deployHansoft": {
+      "value": true
+    },
+    "hansoftVMSize": {
+      "value": "Standard_D1_v2"
+    },
+    "hansoftRootDiskSize": {
+      "value": 100
+    },
+    "hansoftPreUserData": {
+      "value": "#main\n#line1"
+    },
+    "hansoftPostUserData": {
+      "value": "#main\n#line1"
+    },
+    "deploySwarm": {
+      "value": true
+    },
+    "swarmVMSize": {
+      "value": "Standard_D1_v2"
+    },
+    "swarmRootDiskSize": {
+      "value": 100
+    },
+    "swarmPreUserData": {
+      "value": "#main\n#line1"
+    },
+    "swarmPostUserData": {
+      "value": "#main\n#line1"
+    },
+    "deployWorkstation": {
+      "value": true
+    },
+    "workstationVMSize": {
+      "value": "Standard_D1_v2"
+    },
+    "workstationAdminPassword": {
+      "value": "Password1234567890"
+    },
+    "workstationRootDiskSize": {
+      "value": 150
+    },
+    "workstationPreUserData": {
+      "value": "#main\n#line1"
+    },
+    "workstationPostUserData": {
+      "value": "#main\n#line1"
+    },
+    "tagsByResource": {
+      "value": {
+        "Microsoft.Storage/storageAccounts": {
+          "name1": "value1",
+          "name2": "value2"
         },
-        "p4AdminPublicKey": {
-            "value": "GEN-SSH-PUB-KEY"
-        },
-        "adminPublicKey": {
-            "value": "" // TODO: Fill in parameter value
-        },
-        "workstationAdminPassword": {
-            "value": "" // TODO: Fill in parameter value
+        "Microsoft.Compute/virtualMachines": {
+          "name1": "value1",
+          "name2": "value2"
         }
+      }
     }
-}
+  }
