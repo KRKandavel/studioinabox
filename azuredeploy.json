@@ -491,7 +491,7 @@
             "type": "string",
             "value": "[parameters('p4AdminUser')]"
         },
-        "p4AdminPublicKey": {
+        "p4AdminadminPublicKey": {
             "type": "string",
             "value": "[parameters('p4AdminPublicKey')]"
         },
