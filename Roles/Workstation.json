@@ -1,0 +1,352 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": {
+            "defaultValue": "dev",
+            "type": "String"
+        },
+        "zone": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the primary zones"
+            }
+        },
+        "vnetName": {
+            "defaultValue": "HXVNET",
+            "type": "String"
+        },
+        "workstationSubnetName": {
+            "defaultValue": "PublicSubnet0",
+            "type": "String"
+        },
+        "workstationNicName": {
+            "type": "string",
+            "defaultValue": "workstationnic"
+        },
+        "workstationPublicIPName": {
+            "defaultValue": "workstationpip",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the public IP to assign for NIC"
+            }
+        },
+        "workstationPublicIPDNS": {
+            "defaultValue": "workstationpip",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the public IP to assign for NIC"
+            }
+        },
+        "workstationNsgName": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the NSG to apply in NIC"
+            }
+        },
+        "workstationVMName": {
+            "type": "string",
+            "defaultValue": "workstationvm",
+            "metadata": {
+                "description": "Name of the workstation VM."
+            }
+        },
+        "workstationVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_D2_v2",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy."
+            }
+        },
+        "workstationAdminUser": {
+            "type": "string",
+            "defaultValue": "perforce",
+            "metadata": {
+                "description": "Admin username for Virtual Machine"
+            }
+        },
+        "workstationAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "workstationRootDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "workstationPreUserData": {
+            "type": "string",
+            "defaultValue": "Write-Host workstationpreuserdata",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "workstationPostUserData": {
+            "type": "string",
+            "defaultValue": "Write-Host workstationpostuserdata",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": "hxstore",
+            "metadata": {
+                "description": "Name of the storage account"
+            }
+        },
+        "vmIdentitySetting": {
+            "type": "string",
+            "defaultValue": "None",
+            "allowedValues": [
+                "None",
+                "SystemAssigned"
+            ],
+            "metadata": {
+                "description": "Determines whether or not managed identity should be configured."
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            },
+            "defaultValue": ""
+        },
+        "tagsByResource": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "tags by resources to update in resources"
+            }
+        }
+    },
+    "variables": {
+        // Linked Template URIs
+        "rbacAssignRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('IAM/rbacAssignRole.json', parameters('_artifactsLocationSasToken')))]",
+        "publicIPTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/publicIP.json', parameters('_artifactsLocationSasToken')))]",
+        "networkInterfaceTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/networkInterface.json', parameters('_artifactsLocationSasToken')))]",
+        "windowsVMCustomDataTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/windowsVMCustomData.json', parameters('_artifactsLocationSasToken')))]",
+        "windowsCustomScriptTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/windowsCustomScript.json', parameters('_artifactsLocationSasToken')))]",
+
+        "WorkstationPreUserData": "[concat(
+'
+            # For SIAB set the windows password to the instance ID so that the password can be retrieved via CloudFormation outputs
+            $instanceId = Get-EC2InstanceMetadata -Category InstanceId
+            net user Administrator \"$instanceId\"
+', 
+            parameters('workstationPreUserData')
+)]",
+        "WorkstationPostUserData": "[concat(
+            parameters('workstationPostUserData'),
+'
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"For a new Hansoft database the credentials to connect via the Hansoft client will be:\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"Username: administrator\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"Password: Hansoft EC2 Instance ID\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"\"
+            Add-Content -Path ''C:\\Users\\Administrator\\Desktop\\Hansoft.txt'' -Value \"The above credentials can be used to create additional users\"
+'
+)]",
+
+        "workstationCustomData": "[concat(
+            variables('WorkstationPreUserData'), '\n', 
+            variables('WorkstationPostUserData'), '\n'
+        )]",
+        "workstationCmdToRun": "powershell -ExecutionPolicy unrestricted -NoProfile -NonInteractive -command \"cp c:/azuredata/customdata.bin c:/azuredata/install.ps1; c:/azuredata/install.ps1\""
+
+    },
+    "resources": [
+        /* Deploy Workstation Server */
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployWorkstationPublicIP1",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('publicIPTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "publicIPName": {
+                        "value": "[parameters('workstationPublicIPName')]"
+                    },
+                    "publicIPAllocationMethod": {
+                        "value": "Static"
+                    },
+                    "publicIPDNS": {
+                        "value": "[parameters('workstationPublicIPDNS')]"
+                    },
+                    "zone": {
+                        "value": "[parameters('zone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployWorkstationNIC1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployWorkstationPublicIP1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('networkInterfaceTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "subnetName": {
+                        "value": "[parameters('workstationSubnetName')]"
+                    },
+                    "nicName": {
+                        "value": "[parameters('workstationNicName')]"
+                    },
+                    "publicIPName": {
+                        "value": "[parameters('workstationPublicIPName')]"
+                    },
+                    "nsgName": {
+                        "value": "[parameters('workstationNsgName')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployWorkstationVM1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployWorkstationNIC1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('windowsVMCustomDataTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmName": {
+                        "value": "[parameters('workstationVMName')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('workstationVMSize')]"
+                    },
+                    "nicName": {
+                        "value": "[parameters('workstationNicName')]"
+                    },
+                    "rootDiskSize": {
+                        "value": "[parameters('workstationRootDiskSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('workstationAdminUser')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('workstationAdminPassword')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[parameters('storageAccountName')]"
+                    },
+                    "vmIdentitySetting": {
+                        "value": "[parameters('vmIdentitySetting')]"
+                    },
+                    "customData": {
+                        "value": "[variables('WorkstationCustomData')]"
+                    },
+                    "tagsByResource": {
+                        "value": "[parameters('tagsByResource')]"
+                    },
+                    "zone": {
+                        "value": "[parameters('zone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "assignRoleWorkstationVM1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployWorkstationVM1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('rbacAssignRoleTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "storageName": {
+                        "value": "[concat(parameters('environment'), 'hxstore')]"
+                    },
+                    "principalId": {
+                        "value": "[reference('deployWorkstationVM1').outputs.vmPrincipalID.value]"
+                    },
+                    "builtInRoleType": {
+                        "value": "Reader"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployWorkstationVM1Script",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployWorkstationVM1')]",
+                "[resourceId('Microsoft.Resources/deployments', 'assignRoleWorkstationVM1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('windowsCustomScriptTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmName": {
+                        "value": "[parameters('workstationVMName')]"
+                    },
+                    "commandToRun": {
+                        "value": "[variables('workstationCmdToRun')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "workstationVM1PrincipalID": {
+            "type": "string",
+            "value": "[reference('deployWorkstationVM1').outputs.vmPrincipalID.value]"
+        },
+        "workstationVM1RoleAssignID": {
+            "type": "string",
+            "value": "[reference('assignRoleWorkstationVM1').outputs.roleAssignIDStorage.value]"
+        },
+        "workstationVM1FQDN": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('workstationPublicIPName')), '2018-04-01').dnsSettings.fqdn]"
+        }
+    }
+}

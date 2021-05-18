@@ -1,0 +1,382 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": {
+            "defaultValue": "dev",
+            "type": "String"
+        },
+        "zone": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the primary zones"
+            }
+        },
+        "vnetName": {
+            "defaultValue": "HXVNET",
+            "type": "String"
+        },
+        "hansoftSubnetName": {
+            "defaultValue": "PublicSubnet0",
+            "type": "String"
+        },
+        "hansoftNicName": {
+            "type": "string",
+            "defaultValue": "hxnic"
+        },
+        "hansoftPublicIPName": {
+            "defaultValue": "hxcorepip",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the public IP to assign for NIC"
+            }
+        },
+        "hansoftPublicIPDNS": {
+            "defaultValue": "hxcorepip",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the public IP to assign for NIC"
+            }
+        },
+        "hansoftNsgName": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the NSG to apply in NIC"
+            }
+        },
+        "p4AdminUser": {
+            "type": "string",
+            "defaultValue": "centos",
+            "metadata": {
+                "description": "Admin username for Virtual Machine"
+            }
+        },
+        "p4SSHSource": {
+            "type": "string",
+            "allowedValues": [
+                "existing",
+                "public"
+            ],
+            "defaultValue": "public",
+            "metadata": {
+                "description": "The key to use for Linux OS."
+            }
+        },
+        "p4AdminKeyID": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "P4 Admin Key ID."
+            }
+        },
+        "p4AdminAuthType": {
+            "type": "string",
+            "defaultValue": "sshPublicKey",
+            "allowedValues": [
+                "password",
+                "sshPublicKey"
+            ],
+            "metadata": {
+                "description": "Type of authentication to use on the Virtual Machine."
+            }
+        },
+        "p4AdminPublicKey": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "hansoftVMName": {
+            "type": "string",
+            "defaultValue": "hansoftvm",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy."
+            }
+        },
+        "hansoftVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_D2_v2",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy."
+            }
+        },
+        "hansoftRootDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "hansoftPreUserData": {
+            "type": "string",
+            "defaultValue": "echo hansoftpreuserdata",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "hansoftPostUserData": {
+            "type": "string",
+            "defaultValue": "echo hansoftpostuserdata",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": "hxstore",
+            "metadata": {
+                "description": "Name of the storage account"
+            }
+        },
+        "vmIdentitySetting": {
+            "type": "string",
+            "defaultValue": "None",
+            "allowedValues": [
+                "None",
+                "SystemAssigned"
+            ],
+            "metadata": {
+                "description": "Determines whether or not managed identity should be configured."
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            },
+            "defaultValue": ""
+        },
+        "tagsByResource": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "tags by resources to update in resources"
+            }
+        }
+    },
+    "variables": {
+        // Linked Template URIs
+        "rbacAssignRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('IAM/rbacAssignRole.json', parameters('_artifactsLocationSasToken')))]",
+        "publicIPTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/publicIP.json', parameters('_artifactsLocationSasToken')))]",
+        "networkInterfaceTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/networkInterface.json', parameters('_artifactsLocationSasToken')))]",
+        "linuxVMCustomDataTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/linuxVMCustomData.json', parameters('_artifactsLocationSasToken')))]",
+        "linuxCustomScriptTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/linuxCustomScript.json', parameters('_artifactsLocationSasToken')))]",
+
+        "HansoftPreUserData": "[concat(
+'',
+            parameters('hansoftPreUserData'),
+''
+)]",
+        "HansoftPostUserData": "[concat(
+'',
+            parameters('hansoftPostUserData'),
+''
+)]",
+
+        "hansoftCustomData": "[concat(
+            variables('HansoftPreUserData'), '\n', 
+            variables('HansoftPostUserData'), '\n'
+        )]",
+        "hansoftCmdToRun": "sudo cp /var/lib/cloud/instance/user-data.txt /var/lib/cloud/instance/user-data.sh;sed -e \"s/\r//g\" /var/lib/cloud/instance/user-data.sh > /tmp/user-data.sh;sudo bash /tmp/user-data.sh"
+
+    },
+    "resources": [
+        /* Deploy Hansoft Server */
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployHansoftPublicIP1",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('publicIPTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "publicIPName": {
+                        "value": "[parameters('hansoftPublicIPName')]"
+                    },
+                    "publicIPAllocationMethod": {
+                        "value": "Static"
+                    },
+                    "publicIPDNS": {
+                        "value": "[parameters('hansoftPublicIPDNS')]"
+                    },
+                    "zone": {
+                        "value": "[parameters('zone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployHansoftNIC1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployHansoftPublicIP1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('networkInterfaceTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "subnetName": {
+                        "value": "[parameters('hansoftSubnetName')]"
+                    },
+                    "nicName": {
+                        "value": "[parameters('hansoftNicName')]"
+                    },
+                    "publicIPName": {
+                        "value": "[parameters('hansoftPublicIPName')]"
+                    },
+                    "nsgName": {
+                        "value": "[parameters('hansoftNsgName')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "deployHansoftVM1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployHansoftNIC1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linuxVMCustomDataTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmName": {
+                        "value": "[parameters('hansoftVMName')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('hansoftVMSize')]"
+                    },
+                    "nicName": {
+                        "value": "[parameters('hansoftNicName')]"
+                    },
+                    "rootDiskSize": {
+                        "value": "[parameters('hansoftRootDiskSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('p4AdminUser')]"
+                    },
+                    "adminSSHSource": {
+                        "value": "[parameters('p4SSHSource')]"
+                    },
+                    "adminKeyID": {
+                        "value": "[parameters('p4AdminKeyID')]"
+                    },
+                    "authenticationType": {
+                        "value": "[parameters('p4AdminAuthType')]"
+                    },
+                    "adminPasswordOrKey": {
+                        "value": "[parameters('p4AdminPublicKey')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[parameters('storageAccountName')]"
+                    },
+                    "vmIdentitySetting": {
+                        "value": "[parameters('vmIdentitySetting')]"
+                    },
+                    "customData": {
+                        "value": "[variables('HansoftCustomData')]"
+                    },
+                    "tagsByResource": {
+                        "value": "[parameters('tagsByResource')]"
+                    },
+                    "zone": {
+                        "value": "[parameters('zone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "assignRoleHansoftVM1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployHansoftVM1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('rbacAssignRoleTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "storageName": {
+                        "value": "[concat(parameters('environment'), 'hxstore')]"
+                    },
+                    "principalId": {
+                        "value": "[reference('deployHansoftVM1').outputs.vmPrincipalID.value]"
+                    },
+                    "builtInRoleType": {
+                        "value": "Reader"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployHansoftVM1Script",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployHansoftVM1')]",
+                "[resourceId('Microsoft.Resources/deployments', 'assignRoleHansoftVM1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linuxCustomScriptTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmName": {
+                        "value": "[concat(parameters('environment'), 'hansoftvm1')]"
+                    },
+                    "commandToRun": {
+                        "value": "[variables('hansoftCmdToRun')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "hansoftVM1PrincipalID": {
+            "type": "string",
+            "value": "[reference('deployHansoftVM1').outputs.vmPrincipalID.value]"
+        },
+        "hansoftVM1RoleAssignID": {
+            "type": "string",
+            "value": "[reference('assignRoleHansoftVM1').outputs.roleAssignIDStorage.value]"
+        },
+        "hansoftVM1FQDN": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('hansoftPublicIPName')), '2018-04-01').dnsSettings.fqdn]"
+        }
+
+    }
+}

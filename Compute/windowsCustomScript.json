@@ -1,0 +1,134 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for the resources."
+            }
+        },
+        "runCmdOrScript": {
+            "type": "string",
+            "defaultValue": "Command",
+            "allowedValues": [
+                "Command",
+                "Script"
+            ],
+            "metadata": {
+                "description": "Determines whether to run Command or Script on target VM."
+            }
+        },
+        "vmName": {
+            "type": "string",
+            "defaultValue": "hxcore"
+        },
+        "commandToRun": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "scriptFolder": {
+            "type": "string",
+            "defaultValue": "Scripts"
+        },
+        "scriptFilename": {
+            "type": "string",
+            "defaultValue": "user-data.ps1",
+            "allowedValues": [
+                "user-data.ps1",
+                "user-data1.ps1"
+            ],
+            "metadata": {
+                "description": "Choose script to launch from list of available scripts"
+            }
+        },
+        "scriptParameters": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            },
+            "defaultValue": ""
+        }
+    },
+    "variables": {
+        "WinCmdWrapper": "[concat('powershell -ExecutionPolicy Bypass -NoProfile -NonInteractive -command  ', parameters('CommandToRun'))]",
+
+        "scriptPath": "[concat(parameters('scriptFolder'), '/', parameters('scriptFilename'))]",
+        "windowsscripturi": "[uri(parameters('_artifactsLocation'), concat(variables('scriptPath'), parameters('_artifactsLocationSasToken')))]",
+        "WindowsScriptParameters": "[parameters('scriptParameters')]",
+        "WinScriptWrapper": "[concat('powershell -ExecutionPolicy Bypass -file  ', variables('scriptPath'), ' ', variables('WindowsScriptParameters'))]"
+    },
+    "resources": [
+        {
+            "condition": "[equals(parameters('runCmdOrScript'), 'Command')]",
+            "apiVersion": "2018-06-01",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('vmName'), '/installCommand')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+            ],
+            "tags": {
+                "displayName": "config-app"
+            },
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "timestamp": 123456789,
+                    "commandToExecute": "[variables('WinCmdWrapper')]"
+                },
+                "protectedSettings": {
+                    "fileUris": [
+                    ]
+                }
+            }
+        },
+        {
+            "condition": "[equals(parameters('runCmdOrScript'), 'Script')]",
+            "apiVersion": "2018-06-01",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('vmName'), '/installScript')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+            ],
+            "tags": {
+                "displayName": "config-app"
+            },
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "timestamp": 123456789,
+                    "commandToExecute": "[variables('WinScriptWrapper')]"
+                },
+                "protectedSettings": {
+                    "fileUris": [
+                        "[variables('windowsscripturi')]"
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+        }
+    }
+}

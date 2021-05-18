@@ -1,0 +1,116 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for the resources."
+            }
+        },
+        "resourceGroupName": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "Name of the resource group for the existing virtual network"
+            }
+        },
+        "vnetName": {
+            "defaultValue": "HXVNET",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Virtual Network for the NIC"
+            }
+        },
+        "subnetName": {
+            "defaultValue": "PublicSubnet0",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the subnet for NIC"
+            }
+        },
+        "nicName": {
+            "type": "string",
+            "defaultValue": "hxnic"
+        },
+        "publicIPName": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the public IP to assign for NIC"
+            }
+        },
+        "privateIPAddress": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Private IP address of the VM"
+            }
+        },
+        "nsgName": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the NSG to apply in NIC"
+            }
+        }
+    },
+    "variables": {
+        "vnetID": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+        "subnetRef": "[concat(variables('vnetID'),'/subnets/', parameters('subnetName'))]",
+        "publicIpConfig": {
+            "assigned": {
+                "id": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+            },
+            "none": {}
+        },
+        "publicIpAddressObject": "[variables('publicIpConfig')[if(equals(parameters('publicIpName'), ''), 'none', 'assigned')]]",
+        "nicIpConfiguration": {
+            "Static": {
+                "privateIPAllocationMethod": "Static",
+                "privateIPAddress": "[parameters('privateIPAddress')]",
+                "subnet": {
+                    "id": "[variables('subnetRef')]"
+                },
+                "publicIPAddress": "[variables('publicIpAddressObject')]"
+            },
+            "Dynamic": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                    "id": "[variables('subnetRef')]"
+                },
+                "publicIPAddress": "[variables('publicIpAddressObject')]"
+            }
+        },
+        "nicIpProperties": "[variables('nicIpConfiguration')[if(equals(parameters('privateIPAddress'), ''), 'Dynamic', 'Static')]]",
+        "networkSecurityGroupId": {
+            "id": "[resourceId(parameters('resourceGroupName'), 'Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('nicName')]",
+            "apiVersion": "2019-04-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": "[variables('nicIpProperties')]"
+                    }
+                ],
+                "networkSecurityGroup": "[if(not(equals(parameters('nsgName'), '')), variables('networkSecurityGroupId'), json('null'))]"
+            }
+        }
+    ],
+    "outputs": {
+        "resourceID": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
+        }
+    }
+}

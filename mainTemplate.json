@@ -1,0 +1,1228 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for the resources."
+            }
+        },
+        "environment": {
+            "defaultValue": "dev",
+            "type": "String"
+        },
+        "customRoleCreate": {
+            "type": "string",
+            "defaultValue": "no",
+            "allowedValues": [
+                "no",
+                "yes"
+            ],
+            "metadata": {
+                "description": "Determines whether or not a new custom rule should be created."
+            }
+        },
+        "primaryZone": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the primary zones"
+            }
+        },
+        "secondaryZone": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the secondary zones"
+            }
+        },
+        "vnetNewOrExisting": {
+            "type": "string",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "defaultValue": "new",
+            "metadata": {
+                "description": "vnet is new or existing."
+            }
+        },
+        "vnetResourceGroupName": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "VNET resource group name."
+            }
+        },
+        "vnetName": {
+            "defaultValue": "HXVNET",
+            "type": "String"
+        },
+        "vnetAddressPrefixes": {
+            "type": "array",
+            "defaultValue": [
+                "10.0.0.0/16"
+            ],
+            "metadata": {
+                "description": "Address prefix of the virtual network"
+            }
+        },
+        "publicSubnet0Name": {
+            "defaultValue": "PublicSubnet0",
+            "type": "String"
+        },
+        "publicSubnet0": {
+            "defaultValue": "10.0.0.0/24",
+            "type": "String"
+        },
+        "publicSubnet1Name": {
+            "defaultValue": "PublicSubnet1",
+            "type": "String"
+        },
+        "publicSubnet1": {
+            "defaultValue": "10.0.1.0/24",
+            "type": "String"
+        },
+        "privateSubnet0Name": {
+            "defaultValue": "PrivateSubnet0",
+            "type": "String"
+        },
+        "privateSubnet0": {
+            "defaultValue": "10.0.2.0/24",
+            "type": "String"
+        },
+        "privateSubnet1Name": {
+            "defaultValue": "PrivateSubnet1",
+            "type": "String"
+        },
+        "privateSubnet1": {
+            "defaultValue": "10.0.3.0/24",
+            "type": "String"
+        },
+        "nsgIPRangeToPermit": {
+            "defaultValue": "1.1.1.1/32",
+            "type": "String",
+            "metadata": {
+                "description": "Public address space to allow accessing HXCore, Hansoft, Swarm, Workstation."
+            }
+        },
+        "p4PrivateAddress": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Private IP address to assign to HXCore VM."
+            }
+        },
+        "p4AdminUser": {
+            "type": "string",
+            "defaultValue": "centos",
+            "metadata": {
+                "description": "Admin username for Virtual Machine"
+            }
+        },
+        "p4SSHSource": {
+            "type": "string",
+            "allowedValues": [
+                "existing",
+                "public"
+            ],
+            "defaultValue": "public",
+            "metadata": {
+                "description": "The key to use for Linux OS."
+            }
+        },
+        "p4AdminKeyID": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "P4 Admin Key ID."
+            }
+        },
+        "p4AdminAuthType": {
+            "type": "string",
+            "defaultValue": "sshPublicKey",
+            "allowedValues": [
+                "password",
+                "sshPublicKey"
+            ],
+            "metadata": {
+                "description": "Type of authentication to use on the Virtual Machine."
+            }
+        },
+        "p4AdminPublicKey": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "p4VMSize": {
+            "type": "string",
+            "defaultValue": "Standard_D2_v2",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy."
+            }
+        },
+        "p4FromScratchOrSnapshot": {
+            "type": "string",
+            "allowedValues": [
+                "scratch",
+                "snapshot"
+            ],
+            "defaultValue": "scratch",
+            "metadata": {
+                "description": "Create P4 disks from scratch or snapshot."
+            }
+        },
+        "p4SnapshotIDArchive": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the depot disk"
+            }
+        },
+        "p4SnapshotIDJournal": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the journal disk"
+            }
+        },
+        "p4SnapshotIDLog": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the log disk"
+            }
+        },
+        "p4SnapshotIDMetadata": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the metadata disk"
+            }
+        },
+        "depotDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage disk account type"
+            }
+        },
+        "depotDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "logDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage account type"
+            }
+        },
+        "logDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "metadataDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage disk account type"
+            }
+        },
+        "metadataDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "journalDiskType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Storage disk account type"
+            }
+        },
+        "journalDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "p4PreUserData": {
+            "type": "string",
+            "defaultValue": "echo p4preuserdata",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "p4PostUserData": {
+            "type": "string",
+            "defaultValue": "echo p4postuserdata",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "deployHansoft": {
+            "type": "string",
+            "defaultValue": "yes",
+            "metadata": {
+                "description": "Flag to deploy workstation or not."
+            }
+        },
+        "hansoftVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_D2_v2",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy."
+            }
+        },
+        "hansoftRootDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "hansoftPreUserData": {
+            "type": "string",
+            "defaultValue": "echo hansoftpreuserdata",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "hansoftPostUserData": {
+            "type": "string",
+            "defaultValue": "echo hansoftpostuserdata",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "deploySwarm": {
+            "type": "string",
+            "defaultValue": "yes",
+            "metadata": {
+                "description": "Flag to deploy Swarm or not."
+            }
+        },
+        "swarmVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_D2_v2",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy."
+            }
+        },
+        "swarmRootDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "swarmPreUserData": {
+            "type": "string",
+            "defaultValue": "echo swarmpreuserdata",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "swarmPostUserData": {
+            "type": "string",
+            "defaultValue": "echo swarmpostuserdata",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "deployWorkstation": {
+            "type": "string",
+            "defaultValue": "yes",
+            "metadata": {
+                "description": "Flag to deploy workstation or not."
+            }
+        },
+        "workstationVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_D2_v2",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy."
+            }
+        },
+        "workstationAdminUser": {
+            "type": "string",
+            "defaultValue": "perforce",
+            "metadata": {
+                "description": "Admin username for Virtual Machine"
+            }
+        },
+        "workstationAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            },
+            "defaultValue": ""
+        },
+        "workstationRootDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "workstationPreUserData": {
+            "type": "string",
+            "defaultValue": "Write-Host workstationpreuserdata",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "workstationPostUserData": {
+            "type": "string",
+            "defaultValue": "Write-Host workstationpostuserdata",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            },
+            "defaultValue": ""
+        },
+        "tagsByResource": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "tags by resources to update in resources"
+            }
+        }
+    },
+    "variables": {
+        "primaryZone": "[if(equals(parameters('primaryZone'), 'region'), '', parameters('primaryZone'))]",
+
+        // Linked Template URIs
+        "rbacCustomRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('IAM/rbacCustomRole.json', parameters('_artifactsLocationSasToken')))]",
+        "storageAccountTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Storage/createStorageAccount.json', parameters('_artifactsLocationSasToken')))]",
+        "networkTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/virtualNetwork.json', parameters('_artifactsLocationSasToken')))]",
+        "securityGroupTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/securityGroup.json', parameters('_artifactsLocationSasToken')))]",
+        "publicIPTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/publicIP.json', parameters('_artifactsLocationSasToken')))]",
+        "natGWTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/natGateway.json', parameters('_artifactsLocationSasToken')))]",
+        "hxcoreRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Roles/HXCore.json', parameters('_artifactsLocationSasToken')))]",
+        "hansoftRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Roles/Hansoft.json', parameters('_artifactsLocationSasToken')))]",
+        "swarmRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Roles/Swarm.json', parameters('_artifactsLocationSasToken')))]",
+        "workstationRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Roles/Workstation.json', parameters('_artifactsLocationSasToken')))]",
+
+        // Common Security Rules
+        "securityRulesCommon": [
+            {
+                "name": "Inbound1",
+                "direction": "Inbound",
+                "priority": 100,
+                "sourceAddressPrefix": "[parameters('nsgIPRangeToPermit')]",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "22",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound2",
+                "direction": "Inbound",
+                "priority": 200,
+                "sourceAddressPrefix": "[parameters('nsgIPRangeToPermit')]",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "443",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound3",
+                "direction": "Inbound",
+                "priority": 300,
+                "sourceAddressPrefix": "[parameters('nsgIPRangeToPermit')]",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "1666",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound4",
+                "direction": "Inbound",
+                "priority": 400,
+                "sourceAddressPrefix": "[parameters('nsgIPRangeToPermit')]",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound5",
+                "direction": "Inbound",
+                "priority": 500,
+                "sourceAddressPrefix": "[parameters('nsgIPRangeToPermit')]",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "50256",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound6",
+                "direction": "Inbound",
+                "priority": 600,
+                "sourceAddressPrefix": "[parameters('nsgIPRangeToPermit')]",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "access": "Allow",
+                "protocol": "Tcp"
+            },
+            {
+                "name": "Inbound7",
+                "direction": "Inbound",
+                "priority": 700,
+                "sourceAddressPrefix": "[parameters('nsgIPRangeToPermit')]",
+                "destinationAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "8443",
+                "access": "Allow",
+                "protocol": "Tcp"
+            }
+        ],
+        // Linux security rules
+        "securityRulesLinux": [
+            {
+                "name": "default-allow-22",
+                "priority": 1000,
+                "access": "Allow",
+                "direction": "Inbound",
+                "destinationPortRange": "22",
+                "protocol": "Tcp",
+                "sourceAddressPrefix": "[parameters('nsgIPRangeToPermit')]",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*"
+            }
+        ],
+        // Windows security rules
+        "securityRulesWindows": [
+            {
+                "name": "default-allow-3389",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "[parameters('nsgIPRangeToPermit')]",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 2000,
+                "direction": "Inbound"
+            }
+        ],
+        // All security rules
+        "securityRulesAll": "[concat(variables('securityRulesCommon'), variables('securityRulesLinux'), variables('securityRulesWindows'))]"
+
+    },
+    "resources": [
+        {
+            "condition": "[equals(parameters('customRoleCreate'), 'yes')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "createCustomRole",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('rbacCustomRoleTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployStorageAccount",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('storageAccountTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "storageAccountName": {
+                        "value": "[concat(parameters('environment'), 'hxstore')]"
+                    },
+                    "storageAccountType": {
+                        "value": "Standard_LRS"
+                    },
+                    "tagsByResource": {
+                        "value": "[parameters('tagsByResource')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployPublicIP0",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('publicIPTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "publicIPName": {
+                        "value": "[concat(parameters('environment'), '-pip0')]"
+                    },
+                    "publicIPAllocationMethod": {
+                        "value": "Static"
+                    },
+                    "publicIPDNS": {
+                        "value": "[concat(parameters('environment'), 'pip0')]"
+                    },
+                    "zone": {
+                        "value": "[variables('primaryZone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployPublicIP1",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('publicIPTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "publicIPName": {
+                        "value": "[concat(parameters('environment'), '-pip1')]"
+                    },
+                    "publicIPAllocationMethod": {
+                        "value": "Static"
+                    },
+                    "publicIPDNS": {
+                        "value": "[concat(parameters('environment'), 'pip1')]"
+                    },
+                    "zone": {
+                        "value": "[parameters('secondaryZone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployNATGWPublicIP0",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployPublicIP0')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('natGWTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "natGWName": {
+                        "value": "[concat(parameters('environment'), '-nat0')]"
+                    },
+                    "natGWPublicIP": {
+                        "value": "[concat(parameters('environment'), '-pip0')]"
+                    },
+                    "zone": {
+                        "value": "[variables('primaryZone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployNATGWPublicIP1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployPublicIP1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('natGWTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "natGWName": {
+                        "value": "[concat(parameters('environment'), '-nat1')]"
+                    },
+                    "natGWPublicIP": {
+                        "value": "[concat(parameters('environment'), '-pip1')]"
+                    },
+                    "zone": {
+                        "value": "[parameters('secondaryZone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployNetwork",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployNATGWPublicIP0')]",
+                "[resourceId('Microsoft.Resources/deployments', 'deployNATGWPublicIP1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('networkTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "vnetAddressPrefixes": {
+                        "value": "[parameters('vnetAddressPrefixes')]"
+                    },
+                    "publicSubnet0Name": {
+                        "value": "[parameters('publicSubnet0Name')]"
+                    },
+                    "publicSubnet0": {
+                        "value": "[parameters('publicSubnet0')]"
+                    },
+                    "publicSubnet1Name": {
+                        "value": "[parameters('publicSubnet1Name')]"
+                    },
+                    "publicSubnet1": {
+                        "value": "[parameters('publicSubnet1')]"
+                    },
+                    "privateSubnet0Name": {
+                        "value": "[parameters('privateSubnet0Name')]"
+                    },
+                    "privateSubnet0": {
+                        "value": "[parameters('privateSubnet0')]"
+                    },
+                    "privateSubnet0NATGW": {
+                        "value": "[concat(parameters('environment'), '-nat0')]"
+                    },
+                    "privateSubnet1Name": {
+                        "value": "[parameters('privateSubnet1Name')]"
+                    },
+                    "privateSubnet1": {
+                        "value": "[parameters('privateSubnet1')]"
+                    },
+                    "privateSubnet1NATGW": {
+                        "value": "[concat(parameters('environment'), '-nat1')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deploySecurityGroupPublic",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('securityGroupTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "securityGroupName": {
+                        "value": "[concat(parameters('environment'), '-publicnsg1')]"
+                    },
+                    "securityRules": {
+                        "value": "[variables('securityRulesAll')]"
+                    }
+                }
+            }
+        },
+        /* Deploy P4D Server */
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployHXCoreRole",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployStorageAccount')]",
+                "[resourceId('Microsoft.Resources/deployments', 'deployNetwork')]",
+                "[resourceId('Microsoft.Resources/deployments', 'deploySecurityGroupPublic')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('hxcoreRoleTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "environment": {
+                        "value": "[parameters('environment')]"
+                    },
+                    "zone": {
+                        "value": "[variables('primaryZone')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "p4SubnetName": {
+                        "value": "[parameters('publicSubnet0Name')]"
+                    },
+                    "p4NicName": {
+                        "value": "[concat(parameters('environment'), 'hxcorenic1')]"
+                    },
+                    "p4PublicIPName": {
+                        "value": "[concat(parameters('environment'), 'hxcorepip1')]"
+                    },
+                    "p4PublicIPDNS": {
+                        "value": "[concat(parameters('environment'), 'hxcorepip1')]"
+                    },
+                    "p4PrivateAddress": {
+                        "value": "[parameters('p4PrivateAddress')]"
+                    },
+                    "p4NsgName": {
+                        "value": "[concat(parameters('environment'), '-publicnsg1')]"
+                    },
+                    "p4FromScratchOrSnapshot": {
+                        "value": "[parameters('p4FromScratchOrSnapshot')]"
+                    },
+                    "depotDiskType": {
+                        "value": "[parameters('depotDiskType')]"
+                    },
+                    "depotDiskSize": {
+                        "value": "[parameters('depotDiskSize')]"
+                    },
+                    "p4SnapshotIDArchive": {
+                        "value": "[parameters('p4SnapshotIDArchive')]"
+                    },
+                    "logDiskType": {
+                        "value": "[parameters('logDiskType')]"
+                    },
+                    "logDiskSize": {
+                        "value": "[parameters('logDiskSize')]"
+                    },
+                    "p4SnapshotIDLog": {
+                        "value": "[parameters('p4SnapshotIDLog')]"
+                    },
+                    "metadataDiskType": {
+                        "value": "[parameters('metadataDiskType')]"
+                    },
+                    "metadataDiskSize": {
+                        "value": "[parameters('metadataDiskSize')]"
+                    },
+                    "p4SnapshotIDMetadata": {
+                        "value": "[parameters('p4SnapshotIDMetadata')]"
+                    },
+                    "journalDiskType": {
+                        "value": "[parameters('journalDiskType')]"
+                    },
+                    "journalDiskSize": {
+                        "value": "[parameters('journalDiskSize')]"
+                    },
+                    "p4SnapshotIDJournal": {
+                        "value": "[parameters('p4SnapshotIDJournal')]"
+                    },
+                    "p4VMName": {
+                        "value": "[concat(parameters('environment'), 'hxcorevm1')]"
+                    },
+                    "p4VMSize": {
+                        "value": "[parameters('p4VMSize')]"
+                    },
+                    "p4AdminUser": {
+                        "value": "[parameters('p4AdminUser')]"
+                    },
+                    "p4SSHSource": {
+                        "value": "[parameters('p4SSHSource')]"
+                    },
+                    "p4AdminKeyID": {
+                        "value": "[parameters('p4AdminKeyID')]"
+                    },
+                    "p4AdminAuthType": {
+                        "value": "[parameters('p4AdminAuthType')]"
+                    },
+                    "p4AdminPublicKey": {
+                        "value": "[parameters('p4AdminPublicKey')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[concat(parameters('environment'), 'hxstore')]"
+                    },
+                    "vmIdentitySetting": {
+                        "value": "SystemAssigned"
+                    },
+                    "p4PreUserData": {
+                        "value": "[parameters('p4PreUserData')]"
+                    },
+                    "p4PostUserData": {
+                        "value": "[parameters('p4PostUserData')]"
+                    },
+                    "tagsByResource": {
+                        "value": "[parameters('tagsByResource')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    }
+                }
+            }
+        },
+        /* Deploy Hansoft Server */
+        {
+            "condition": "[equals(parameters('deployHansoft'),'yes')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployHansoftRole",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployHXCoreRole')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('hansoftRoleTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "environment": {
+                        "value": "[parameters('environment')]"
+                    },
+                    "zone": {
+                        "value": "[variables('primaryZone')]"
+                    },
+                    "hansoftPublicIPName": {
+                        "value": "[concat(parameters('environment'), 'hansoftpip1')]"
+                    },
+                    "hansoftPublicIPDNS": {
+                        "value": "[concat(parameters('environment'), 'hansoftpip1')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "hansoftSubnetName": {
+                        "value": "[parameters('publicSubnet0Name')]"
+                    },
+                    "hansoftNicName": {
+                        "value": "[concat(parameters('environment'), 'hansoftnic1')]"
+                    },
+                    "hansoftNsgName": {
+                        "value": "[concat(parameters('environment'), '-publicnsg1')]"
+                    },
+                    "hansoftVMName": {
+                        "value": "[concat(parameters('environment'), 'hansoftvm1')]"
+                    },
+                    "hansoftVMSize": {
+                        "value": "[parameters('hansoftVMSize')]"
+                    },
+                    "hansoftRootDiskSize": {
+                        "value": "[parameters('hansoftRootDiskSize')]"
+                    },
+                    "p4AdminUser": {
+                        "value": "[parameters('p4AdminUser')]"
+                    },
+                    "p4SSHSource": {
+                        "value": "[parameters('p4SSHSource')]"
+                    },
+                    "p4AdminKeyID": {
+                        "value": "[parameters('p4AdminKeyID')]"
+                    },
+                    "p4AdminAuthType": {
+                        "value": "[parameters('p4AdminAuthType')]"
+                    },
+                    "p4AdminPublicKey": {
+                        "value": "[parameters('p4AdminPublicKey')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[concat(parameters('environment'), 'hxstore')]"
+                    },
+                    "vmIdentitySetting": {
+                        "value": "SystemAssigned"
+                    },
+                    "hansoftPreUserData": {
+                        "value": "[parameters('hansoftPreUserData')]"
+                    },
+                    "hansoftPostUserData": {
+                        "value": "[parameters('hansoftPostUserData')]"
+                    },
+                    "tagsByResource": {
+                        "value": "[parameters('tagsByResource')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    }
+                }
+            }
+        },
+        /* Deploy Swarm Server */
+        {
+            "condition": "[equals(parameters('deploySwarm'),'yes')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deploySwarmRole",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployHXCoreRole')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('swarmRoleTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "environment": {
+                        "value": "[parameters('environment')]"
+                    },
+                    "zone": {
+                        "value": "[variables('primaryZone')]"
+                    },
+                    "swarmPublicIPName": {
+                        "value": "[concat(parameters('environment'), 'swarmpip1')]"
+                    },
+                    "swarmPublicIPDNS": {
+                        "value": "[concat(parameters('environment'), 'swarmpip1')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "swarmSubnetName": {
+                        "value": "[parameters('publicSubnet0Name')]"
+                    },
+                    "swarmNicName": {
+                        "value": "[concat(parameters('environment'), 'swarmnic1')]"
+                    },
+                    "swarmNsgName": {
+                        "value": "[concat(parameters('environment'), '-publicnsg1')]"
+                    },
+                    "swarmVMName": {
+                        "value": "[concat(parameters('environment'), 'swarmvm1')]"
+                    },
+                    "swarmVMSize": {
+                        "value": "[parameters('swarmVMSize')]"
+                    },
+                    "swarmRootDiskSize": {
+                        "value": "[parameters('swarmRootDiskSize')]"
+                    },
+                    "p4AdminUser": {
+                        "value": "[parameters('p4AdminUser')]"
+                    },
+                    "p4SSHSource": {
+                        "value": "[parameters('p4SSHSource')]"
+                    },
+                    "p4AdminKeyID": {
+                        "value": "[parameters('p4AdminKeyID')]"
+                    },
+                    "p4AdminAuthType": {
+                        "value": "[parameters('p4AdminAuthType')]"
+                    },
+                    "p4AdminPublicKey": {
+                        "value": "[parameters('p4AdminPublicKey')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[concat(parameters('environment'), 'hxstore')]"
+                    },
+                    "vmIdentitySetting": {
+                        "value": "SystemAssigned"
+                    },
+                    "swarmPreUserData": {
+                        "value": "[parameters('swarmPreUserData')]"
+                    },
+                    "swarmPostUserData": {
+                        "value": "[parameters('swarmPostUserData')]"
+                    },
+                    "tagsByResource": {
+                        "value": "[parameters('tagsByResource')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    }
+                }
+            }
+        },
+        /* Deploy Workstation Server */
+        {
+            "condition": "[equals(parameters('deployWorkstation'),'yes')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deployWorkstationRole",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deployHXCoreRole')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('workstationRoleTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "environment": {
+                        "value": "[parameters('environment')]"
+                    },
+                    "zone": {
+                        "value": "[variables('primaryZone')]"
+                    },
+                    "workstationPublicIPName": {
+                        "value": "[concat(parameters('environment'), 'workstationpip1')]"
+                    },
+                    "workstationPublicIPDNS": {
+                        "value": "[concat(parameters('environment'), 'workstationpip1')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "workstationSubnetName": {
+                        "value": "[parameters('publicSubnet0Name')]"
+                    },
+                    "workstationNicName": {
+                        "value": "[concat(parameters('environment'), 'wsnic1')]"
+                    },
+                    "workstationNsgName": {
+                        "value": "[concat(parameters('environment'), '-publicnsg1')]"
+                    },
+                    "workstationVMName": {
+                        "value": "[concat(parameters('environment'), 'wsvmvm1')]"
+                    },
+                    "workstationVMSize": {
+                        "value": "[parameters('workstationVMSize')]"
+                    },
+                    "workstationRootDiskSize": {
+                        "value": "[parameters('workstationRootDiskSize')]"
+                    },
+                    "workstationAdminUser": {
+                        "value": "[parameters('workstationAdminUser')]"
+                    },
+                    "workstationAdminPassword": {
+                        "value": "[parameters('workstationAdminPassword')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[concat(parameters('environment'), 'hxstore')]"
+                    },
+                    "vmIdentitySetting": {
+                        "value": "SystemAssigned"
+                    },
+                    "workstationPreUserData": {
+                        "value": "[parameters('workstationPreUserData')]"
+                    },
+                    "workstationPostUserData": {
+                        "value": "[parameters('workstationPostUserData')]"
+                    },
+                    "tagsByResource": {
+                        "value": "[parameters('tagsByResource')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "deployVirtualNetwork": {
+            "type": "string",
+            "value": "[reference('deployNetwork').outputs.resourceID.value]"
+        },
+        "deploySecurityGroup": {
+            "type": "string",
+            "value": "[reference('deploySecurityGroupPublic').outputs.resourceID.value]"
+        },
+        "hxcoreVM1PrincipalID": {
+            "type": "string",
+            "value": "[reference('deployHXCoreRole').outputs.hxcoreVM1PrincipalID.value]"
+        },
+        "hxcoreVM1RoleAssignID": {
+            "type": "string",
+            "value": "[reference('deployHXCoreRole').outputs.hxcoreVM1RoleAssignID.value]"
+        },
+        "hansoftVM1PrincipalID": {
+            "type": "string",
+            "value": "[reference('deployHansoftRole').outputs.hansoftVM1PrincipalID.value]"
+        },
+        "hansoftVM1RoleAssignID": {
+            "type": "string",
+            "value": "[reference('deployHansoftRole').outputs.hansoftVM1RoleAssignID.value]"
+        },
+        "swarmVM1PrincipalID": {
+            "type": "string",
+            "value": "[reference('deploySwarmRole').outputs.swarmVM1PrincipalID.value]"
+        },
+        "swarmVM1RoleAssignID": {
+            "type": "string",
+            "value": "[reference('deploySwarmRole').outputs.swarmVM1RoleAssignID.value]"
+        },
+        "workstationVM1PrincipalID": {
+            "type": "string",
+            "value": "[reference('deployWorkstationRole').outputs.workstationVM1PrincipalID.value]"
+        },
+        "workstationVM1RoleAssignID": {
+            "type": "string",
+            "value": "[reference('deployWorkstationRole').outputs.workstationVM1RoleAssignID.value]"
+        },
+        "hxcoreVM1FQDN": {
+            "type": "string",
+            "value": "[reference('deployHXCoreRole').outputs.hxcoreVM1FQDN.value]"
+        },
+        "hansoftVM1FQDN": {
+            "type": "string",
+            "value": "[reference('deployHansoftRole').outputs.hansoftVM1FQDN.value]"
+        },
+        "swarmVM1FQDN": {
+            "type": "string",
+            "value": "[reference('deploySwarmRole').outputs.swarmVM1FQDN.value]"
+        },
+        "workstationVM1FQDN": {
+            "type": "string",
+            "value": "[reference('deployWorkstationRole').outputs.workstationVM1FQDN.value]"
+        }
+    }
+}

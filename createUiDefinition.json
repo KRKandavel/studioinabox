@@ -294,7 +294,7 @@
                         ]
                     },
                     {
-                        "name": "deployFromScratchOrSnapshot",
+                        "name": "p4FromScratchOrSnapshot",
                         "type": "Microsoft.Common.OptionsGroup",
                         "label": "Deploy from Scratch/Snapshot",
                         "defaultValue": "Scratch",
@@ -328,7 +328,7 @@
                         "constraints": {
                             "required": true
                         },
-                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot, 'snapshot')]"
+                        "visible": "[equals(steps('PerforceServerConfig').p4FromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDJournal",
@@ -344,7 +344,7 @@
                         "constraints": {
                             "required": true
                         },
-                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot, 'snapshot')]"
+                        "visible": "[equals(steps('PerforceServerConfig').p4FromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDLog",
@@ -360,7 +360,7 @@
                         "constraints": {
                             "required": true
                         },
-                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot, 'snapshot')]"
+                        "visible": "[equals(steps('PerforceServerConfig').p4FromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDMetadata",
@@ -376,7 +376,7 @@
                         "constraints": {
                             "required": true
                         },
-                        "visible": "[equals(steps('PerforceServerConfig').deployFromScratchOrSnapshot, 'snapshot')]"
+                        "visible": "[equals(steps('PerforceServerConfig').p4FromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "depotDiskType",
@@ -1008,7 +1008,7 @@
             "p4AdminKeyID": "[steps('PerforceServerConfig').linuxCredential.adminExistKey.id]",
             "p4AdminAuthType": "[steps('PerforceServerConfig').linuxCredential.adminPublicKey.authenticationType]",
             "p4AdminPublicKey": "[steps('PerforceServerConfig').linuxCredential.adminPublicKey.sshPublicKey]",
-            "deployFromScratchOrSnapshot": "[steps('PerforceServerConfig').deployFromScratchOrSnapshot]",
+            "p4FromScratchOrSnapshot": "[steps('PerforceServerConfig').p4FromScratchOrSnapshot]",
             "p4SnapshotIDArchive": "[steps('PerforceServerConfig').p4SnapshotIDArchive.id]",
             "p4SnapshotIDJournal": "[steps('PerforceServerConfig').p4SnapshotIDJournal.id]",
             "p4SnapshotIDLog": "[steps('PerforceServerConfig').p4SnapshotIDLog.id]",

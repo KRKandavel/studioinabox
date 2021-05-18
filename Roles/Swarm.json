@@ -1,0 +1,408 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": {
+            "defaultValue": "dev",
+            "type": "String"
+        },
+        "zone": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the primary zones"
+            }
+        },
+        "vnetName": {
+            "defaultValue": "HXVNET",
+            "type": "String"
+        },
+        "swarmSubnetName": {
+            "defaultValue": "PublicSubnet0",
+            "type": "String"
+        },
+        "swarmNicName": {
+            "type": "string",
+            "defaultValue": "swarmnic"
+        },
+        "swarmPublicIPName": {
+            "defaultValue": "swarmpip",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the public IP to assign for NIC"
+            }
+        },
+        "swarmPublicIPDNS": {
+            "defaultValue": "swarmpip",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the public IP to assign for NIC"
+            }
+        },
+        "swarmNsgName": {
+            "defaultValue": "",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the NSG to apply in NIC"
+            }
+        },
+        "p4AdminUser": {
+            "type": "string",
+            "defaultValue": "centos",
+            "metadata": {
+                "description": "Admin username for Virtual Machine"
+            }
+        },
+        "p4SSHSource": {
+            "type": "string",
+            "allowedValues": [
+                "existing",
+                "public"
+            ],
+            "defaultValue": "public",
+            "metadata": {
+                "description": "The key to use for Linux OS."
+            }
+        },
+        "p4AdminKeyID": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "P4 Admin Key ID."
+            }
+        },
+        "p4AdminAuthType": {
+            "type": "string",
+            "defaultValue": "sshPublicKey",
+            "allowedValues": [
+                "password",
+                "sshPublicKey"
+            ],
+            "metadata": {
+                "description": "Type of authentication to use on the Virtual Machine."
+            }
+        },
+        "p4AdminPublicKey": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Password or ssh key for the Virtual Machine."
+            }
+        },
+        "swarmVMName": {
+            "type": "string",
+            "defaultValue": "swarmvm",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy."
+            }
+        },
+        "swarmVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_D2_v2",
+            "metadata": {
+                "description": "Please select the size of the VM you wish to deploy."
+            }
+        },
+        "swarmRootDiskSize": {
+            "type": "int",
+            "minValue": 10,
+            "maxValue": 2048,
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Please select the size of the data disk you wish to deploy (value is integer GB)."
+            }
+        },
+        "swarmPreUserData": {
+            "type": "string",
+            "defaultValue": "echo hansoftpreuserdata",
+            "metadata": {
+                "description": "Userdata to run before the default P4 userdata"
+            }
+        },
+        "swarmPostUserData": {
+            "type": "string",
+            "defaultValue": "echo hansoftpostuserdata",
+            "metadata": {
+                "description": "Userdata to run after the default P4 userdata"
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": "hxstore",
+            "metadata": {
+                "description": "Name of the storage account"
+            }
+        },
+        "vmIdentitySetting": {
+            "type": "string",
+            "defaultValue": "None",
+            "allowedValues": [
+                "None",
+                "SystemAssigned"
+            ],
+            "metadata": {
+                "description": "Determines whether or not managed identity should be configured."
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            },
+            "defaultValue": ""
+        },
+        "tagsByResource": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "tags by resources to update in resources"
+            }
+        }
+    },
+    "variables": {
+        // Linked Template URIs
+        "rbacAssignRoleTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('IAM/rbacAssignRole.json', parameters('_artifactsLocationSasToken')))]",
+        "publicIPTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/publicIP.json', parameters('_artifactsLocationSasToken')))]",
+        "networkInterfaceTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Network/networkInterface.json', parameters('_artifactsLocationSasToken')))]",
+        "linuxVMCustomDataTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/linuxVMCustomData.json', parameters('_artifactsLocationSasToken')))]",
+        "linuxCustomScriptTemplateUrl": "[uri(parameters('_artifactsLocation'), concat('Compute/linuxCustomScript.json', parameters('_artifactsLocationSasToken')))]",
+
+        "SwarmPreUserData": "[concat(
+'',
+            parameters('swarmPreUserData'),
+''
+)]",
+        "SwarmPostUserData": "[concat(
+'
+            # If we are creating a swarm instance create triggers in P4D
+            # I am putting this userdata in swarm so that the triggers only get created if swarm gets created
+            cat <<EOT >> /tmp/triggers.cfg
+            Triggers:
+              swarm.job form-commit job \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t job           -v %formname%\"
+              swarm.user form-commit user \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t user          -v %formname%\"
+              swarm.userdel form-delete user \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t userdel       -v %formname%\"
+              swarm.group form-commit group \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t group         -v %formname%\"
+              swarm.groupdel form-delete group \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t groupdel      -v %formname%\"
+              swarm.changesave form-save change \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t changesave    -v %formname%\"
+              swarm.shelve shelve-commit //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t shelve        -v %change%\"
+              swarm.commit change-commit //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t commit        -v %change%\"
+              swarm.shelvedel shelve-delete //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t shelvedel     -v %change% -w %client% -u %user% -d %quote%%clientcwd%^^^%quote% -a %quote%%argsQuoted%%quote% -s %quote%%serverVersion%%quote%\"
+              swarm.enforce change-submit //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t checkenforced -v %change% -u %user%\"
+              swarm.strict change-content //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t checkstrict   -v %change% -u %user%\"
+              swarm.shelvesub shelve-submit //... \"%quote%/opt/perforce/swarm-triggers/bin/swarm-trigger.pl%quote% -t checkshelve   -v %change% -u %user%\"
+            EOT
+            cat /tmp/triggers.cfg | /opt/perforce/bin/p4 triggers -i
+            rm /tmp/triggers.cfg  
+
+            # create a swarm token that can be used from p4d triggers
+            # TODO: Swarm does NOT create a token P4D can use until a user logins AND clicks on their profile icon and About Swarm
+            # work around this by pre creating the expected dir structure and pre create a token P4D is expecting to use
+            mkdir -p /opt/perforce/swarm/data/queue/tokens/
+            touch /opt/perforce/swarm/data/queue/tokens/C02E4B53-A155-920C-A152-988C37D2F700
+            chown -R www-data:www-data /opt/perforce/swarm/data/queue
+',
+            parameters('swarmPostUserData'),
+''
+)]",
+
+        "swarmCustomData": "[concat(
+            variables('SwarmPreUserData'), '\n', 
+            variables('SwarmPostUserData'), '\n'
+        )]",
+        "swarmCmdToRun": "sudo cp /var/lib/cloud/instance/user-data.txt /var/lib/cloud/instance/user-data.sh;sed -e \"s/\r//g\" /var/lib/cloud/instance/user-data.sh > /tmp/user-data.sh;sudo bash /tmp/user-data.sh"
+
+    },
+    "resources": [
+        /* Deploy Swarm Server */
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deploySwarmPublicIP1",
+            "dependsOn": [
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('publicIPTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "publicIPName": {
+                        "value": "[parameters('swarmPublicIPName')]"
+                    },
+                    "publicIPAllocationMethod": {
+                        "value": "Static"
+                    },
+                    "publicIPDNS": {
+                        "value": "[parameters('swarmPublicIPDNS')]"
+                    },
+                    "zone": {
+                        "value": "[parameters('zone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deploySwarmNIC1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deploySwarmPublicIP1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('networkInterfaceTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "subnetName": {
+                        "value": "[parameters('swarmSubnetName')]"
+                    },
+                    "nicName": {
+                        "value": "[parameters('swarmNicName')]"
+                    },
+                    "publicIPName": {
+                        "value": "[parameters('swarmPublicIPName')]"
+                    },
+                    "nsgName": {
+                        "value": "[parameters('swarmNsgName')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deploySwarmVM1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deploySwarmNIC1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linuxVMCustomDataTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmName": {
+                        "value": "[parameters('swarmVMName')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('swarmVMSize')]"
+                    },
+                    "nicName": {
+                        "value": "[parameters('swarmNicName')]"
+                    },
+                    "rootDiskSize": {
+                        "value": "[parameters('swarmRootDiskSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('p4AdminUser')]"
+                    },
+                    "adminSSHSource": {
+                        "value": "[parameters('p4SSHSource')]"
+                    },
+                    "adminKeyID": {
+                        "value": "[parameters('p4AdminKeyID')]"
+                    },
+                    "authenticationType": {
+                        "value": "[parameters('p4AdminAuthType')]"
+                    },
+                    "adminPasswordOrKey": {
+                        "value": "[parameters('p4AdminPublicKey')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[parameters('storageAccountName')]"
+                    },
+                    "vmIdentitySetting": {
+                        "value": "[parameters('vmIdentitySetting')]"
+                    },
+                    "customData": {
+                        "value": "[variables('SwarmCustomData')]"
+                    },
+                    "tagsByResource": {
+                        "value": "[parameters('tagsByResource')]"
+                    },
+                    "zone": {
+                        "value": "[parameters('zone')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "assignRoleSwarmVM1",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deploySwarmVM1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('rbacAssignRoleTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "storageName": {
+                        "value": "[concat(parameters('environment'), 'hxstore')]"
+                    },
+                    "principalId": {
+                        "value": "[reference('deploySwarmVM1').outputs.vmPrincipalID.value]"
+                    },
+                    "builtInRoleType": {
+                        "value": "Reader"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "deploySwarmVM1Script",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'deploySwarmVM1')]",
+                "[resourceId('Microsoft.Resources/deployments', 'assignRoleSwarmVM1')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linuxCustomScriptTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmName": {
+                        "value": "[parameters('swarmVMName')]"
+                    },
+                    "commandToRun": {
+                        "value": "[variables('swarmCmdToRun')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "swarmVM1PrincipalID": {
+            "type": "string",
+            "value": "[reference('deploySwarmVM1').outputs.vmPrincipalID.value]"
+        },
+        "swarmVM1RoleAssignID": {
+            "type": "string",
+            "value": "[reference('assignRoleSwarmVM1').outputs.roleAssignIDStorage.value]"
+        },
+        "swarmVM1FQDN": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('swarmPublicIPName')), '2018-04-01').dnsSettings.fqdn]"
+        }
+    }
+}
