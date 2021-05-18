@@ -13,6 +13,7 @@
             "defaultValue": "dev",
             "type": "String"
         },
+        //test comment1
         "customRoleCreate": {
             "type": "string",
             "defaultValue": "no",
@@ -24,6 +25,7 @@
                 "description": "Determines whether or not a new custom rule should be created."
             }
         },
+         //test comment2
         "availabilityOption": {
             "type": "string",
             "allowedValues": [
