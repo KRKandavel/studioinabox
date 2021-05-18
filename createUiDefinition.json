@@ -5,6 +5,27 @@
     "parameters": {
         "basics": [
             {
+                "name": "sku",
+                "type": "Microsoft.Common.OptionsGroup",
+                "label": "{{sku}}",
+                "defaultValue": "{{basic}}",
+                "toolTip": "{{tooltipsku}} [{{learnMore}}](https://go.microsoft.com/fwlink/?linkid=2107163)",
+                "constraints": {
+                    "allowedValues": [
+                        {
+                            "label": "{{basic}}",
+                            "value": "Basic"
+                        },
+                        {
+                            "label": "{{standard}}",
+                            "value": "Standard"
+                        }
+                    ],
+                    "required": true
+                },
+                "visible": true
+            },
+            {
                 "name": "environment",
                 "type": "Microsoft.Common.TextBox",
                 "label": "Environment",
@@ -47,6 +68,18 @@
                     "required": false
                 },
                 "visible": "[and(not(equals(basics('primaryZone'),'region')),not(empty(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))))))]"
+            },
+            {
+                "name": "avalibilityzone",
+                "type": "Microsoft.Common.DropDown",
+                "label": "{{Zone_redundant}}",
+                "defaultValue": "Zone-redundant",
+                "toolTip": "{{tooltipavalibilityzone}}",
+                "constraints": {
+                    "allowedValues": "[map(parse(replace(concat('[{\"label\":\"{{Zone_redundant}}\",\"value\":\"Zone-redundant\"},',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')), (item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
+                    "required": true
+                },
+                "visible": "[and(equals(basics('sku'),'Standard'),not(empty(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))))))]"
             }
         ],
         "steps": [
