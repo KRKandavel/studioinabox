@@ -5,14 +5,6 @@
     "parameters": {
         "basics": [
             {
-                "name": "providersApi",
-                "type": "Microsoft.Solutions.ArmApiControl",
-                "request": {
-                    "method": "GET",
-                    "path": "[concat(subscription().id, '/providers/Microsoft.Network?api-version=2017-06-01')]"
-                }
-            },
-            {
                 "name": "environment",
                 "type": "Microsoft.Common.TextBox",
                 "label": "Environment",
@@ -22,6 +14,14 @@
                     "required": true,
                     "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,4}$",
                     "validationMessage": "Environment must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
+                }
+            },
+            {
+                "name": "providersApi",
+                "type": "Microsoft.Solutions.ArmApiControl",
+                "request": {
+                    "method": "GET",
+                    "path": "[concat(subscription().id, '/providers/Microsoft.Network?api-version=2017-06-01')]"
                 }
             },
             {
