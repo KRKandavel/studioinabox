@@ -957,8 +957,7 @@
         "outputs": {
             "location": "[location()]",
             "environment": "[basics('environment')]",
-            "primaryZone": "[parse(concat('\"',coalesce(basics('primaryZone'), ''),'\"'))]",
-            "secondaryZone": "[parse(concat('\"',coalesce(basics('secondaryZone'), ''),'\"'))]",
+            "primaryZone": "[parse(concat('\"',coalesce(steps('PerforceServerConfig').primaryZone, ''),'\"'))]",
             "vnetNewOrExisting": "[steps('VirtualNetworkConfig').virtualNetwork.newOrExisting]",
             "vnetName": "[steps('VirtualNetworkConfig').virtualNetwork.name]",
             "vnetAddressPrefixes": "[steps('VirtualNetworkConfig').virtualNetwork.addressPrefixes]",
