@@ -232,28 +232,20 @@
                                             "value": "public"
                                         }
                                     ],
+                                    "validations": [
+                                        {
+                                            "isValid": "[not(empty(steps('PerforceServerConfig').linuxCredential.adminExistKey.name))]",
+                                            "message": "You need to select a key to proceed"
+                                        }
+                                    ],
                                     "required": true
                                 },
                                 "visible": true
                             },
                             {
-                                "name": "adminUsername",
-                                "type": "Microsoft.Compute.UserNameTextBox",
-                                "label": "User name",
-                                "defaultValue": "centos",
-                                "toolTip": "Specify a user for accessing the virtual machines within your cluster. Must be a valid Ubuntu username",
-                                "constraints": {
-                                    "required": true,
-                                    "regex": "^(?!(?:adm|admin|audio|backup|bin|cdrom|crontab|daemon|dialout|dip|disk|fax|floppy|fuse|games|gnats|irc|kmem|landscape|libuuid|list|lp|mail|man|messagebus|mlocate|netdev|news|nobody|nogroup|operator|plugdev|proxy|root|sasl|shadow|src|ssh|sshd|staff|sudo|sync|sys|syslog|tape|tty|users|utmp|uucp|video|voice|whoopsie|www\\-data)$)\\w+$",
-                                    "validationMessage": "Username must not be a reserved Ubuntu username"
-                                },
-                                "visible": false,
-                                "osPlatform": "Linux"
-                            },
-                            {
                                 "name": "adminExistKey",
                                 "type": "Microsoft.Solutions.ResourceSelector",
-                                "label": "Key pair name",
+                                "label": "Stored Keys",
                                 "resourceType": "Microsoft.Compute/sshPublicKeys",
                                 "toolTip": "Select new key pair stored in Azure",
                                 "options": {
@@ -262,15 +254,10 @@
                                         "location": "onBasics"
                                     }
                                 },
-                                "defaultValue": "",
-                                "constraints": {
+                                "constraints":{
                                     "required": true,
-                                    "validations": [
-                                        {
-                                            "regex": "(^$)|(\\s+$)",
-                                            "message": "No Keys available. Must select an existing key."
-                                        }
-                                    ]
+                                    "regex": "/(?!^$)([^\\s])/",
+                                    "validationMessage": "You must select existing key to proceed."
                                 },
                                 "visible": "[equals(steps('PerforceServerConfig').linuxCredential.p4SSHSource, 'existing')]"
                             },
@@ -291,6 +278,10 @@
                                 "options": {
                                     "hidePassword": true,
                                     "hideConfirmation": true
+                                },
+                                "constraints": {
+                                    "required": true,
+                                    "customValidationMessage": "The value must not be empty."
                                 },
                                 "osPlatform": "Linux",
                                 "visible": "[equals(steps('PerforceServerConfig').linuxCredential.p4SSHSource, 'public')]"
