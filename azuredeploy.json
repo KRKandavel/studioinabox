@@ -37,6 +37,7 @@
                 "description": "The zone to deploy Perforce."
             }
         },
+        ///test comment3
         "primaryZone": {
             "defaultValue": "",
             "type": "String",
