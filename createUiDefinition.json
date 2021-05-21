@@ -5,6 +5,26 @@
     "parameters": {
         "basics": [
             {
+                "name": "sshKeyApi",
+                "type": "Microsoft.Solutions.ArmApiControl",
+                "request": {
+                    "method": "GET",
+                    "path": "[concat(subscription().id, '/providers/Microsoft.Compute/sshPublicKeys?api-version=2020-12-01')]",
+                    "body": {
+                    }
+                }
+            },
+            {
+                "name": "snapshotApi",
+                "type": "Microsoft.Solutions.ArmApiControl",
+                "request": {
+                    "method": "GET",
+                    "path": "[concat(subscription().id, '/providers/Microsoft.Compute/snapshots?api-version=2020-12-01')]",
+                    "body": {
+                    }
+                }
+            },
+            {
                 "name": "providersApi",
                 "type": "Microsoft.Solutions.ArmApiControl",
                 "request": {
@@ -20,8 +40,8 @@
                 "toolTip": "Provide an environment name that will be used in resource names and tagging. Min 3, max 20",
                 "constraints": {
                     "required": true,
-                    "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{0,4}$",
-                    "validationMessage": "Environment must start with an alphanumeric character and can contain alphanumeric or hyphen characters, up to 5 characters in length"
+                    "regex": "^[0-9a-zA-Z][0-9a-zA-Z\\-]{2,19}$",
+                    "validationMessage": "Environment must start with an alphanumeric character and can contain alphanumeric or hyphen characters, and must be between 3 and 20 characters in length"
                 }
             },
             {
@@ -47,6 +67,84 @@
                     "required": false
                 },
                 "visible": "[and(not(equals(basics('primaryZone'),'region')),not(empty(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))))))]"
+            },
+            {
+                "name": "linuxCredential",
+                "type": "Microsoft.Common.Section",
+                "label": "Linux Account Details",
+                "elements": [
+                    {
+                        "name": "adminUsername",
+                        "type": "Microsoft.Compute.UserNameTextBox",
+                        "label": "User name",
+                        "defaultValue": "centos",
+                        "toolTip": "Specify a user for accessing the virtual machines within your cluster. Must be a valid CentOS username",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^(?!(?:adm|admin|audio|backup|bin|cdrom|crontab|daemon|dialout|dip|disk|fax|floppy|fuse|games|gnats|irc|kmem|landscape|libuuid|list|lp|mail|man|messagebus|mlocate|netdev|news|nobody|nogroup|operator|plugdev|proxy|root|sasl|shadow|src|ssh|sshd|staff|sudo|sync|sys|syslog|tape|tty|users|utmp|uucp|video|voice|whoopsie|www\\-data)$)\\w+$",
+                            "validationMessage": "Username must not be a reserved CentOS username"
+                        },
+                        "visible": false,
+                        "osPlatform": "Linux"
+                    },
+                    {
+                        "name": "p4SSHSource",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "SSH public key source",
+                        "defaultValue": "Use existing key stored in Azure",
+                        "toolTip": "Specify the SSH key source for P4 server.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Use existing key stored in Azure",
+                                    "value": "existing"
+                                },
+                                {
+                                    "label": "Use existig public key",
+                                    "value": "public"
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "adminExistKey",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Azure Stored Keys",
+                        "toolTip": "Select key pair stored in Azure.",
+                        "constraints": {
+                            "allowedValues": "[map(basics('sshKeyApi').value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
+                            "required": true
+                        },
+                        "visible": "[equals(basics('linuxCredential').p4SSHSource, 'existing')]"
+                    },
+                    {
+                        "name": "adminPublicKey",
+                        "type": "Microsoft.Compute.CredentialsCombo",
+                        "label": {
+                            "authenticationType": "Authentication type",
+                            "password": "Password",
+                            "confirmPassword": "Confirm password",
+                            "sshPublicKey": "SSH public key for user 'centos'"
+                        },
+                        "toolTip": {
+                            "authenticationType": "Choose Authentication type Password or PublicKey(SSH).",
+                            "password": "Enter the password for the specified user name.",
+                            "sshPublicKey": "Copy Public key into field."
+                        },
+                        "options": {
+                            "hidePassword": true,
+                            "hideConfirmation": true
+                        },
+                        "constraints": {
+                            "required": true,
+                            "customValidationMessage": "The value must not be empty."
+                        },
+                        "osPlatform": "Linux",
+                        "visible": "[equals(basics('linuxCredential').p4SSHSource, 'public')]"
+                    }
+                ]
             }
         ],
         "steps": [
@@ -157,8 +255,8 @@
                         "label": "P4 instance type",
                         "toolTip": "Select P4 server VM SKU",
                         "recommendedSizes": [
-                            "Standard_D2_v2",
                             "Standard_D2_v4",
+                            "Standard_D2_v2",
                             "Standard_D4_v4",
                             "Standard_D8_v4",
                             "Standard_E2_v4",
@@ -211,98 +309,6 @@
                         }
                     },
                     {
-                        "name": "linuxCredential",
-                        "type": "Microsoft.Common.Section",
-                        "label": "Linux Account Details",
-                        "elements": [
-                            {
-                                "name": "p4SSHSource",
-                                "type": "Microsoft.Common.DropDown",
-                                "label": "SSH public key source",
-                                "defaultValue": "Use existing key stored in Azure",
-                                "toolTip": "Specify the SSH key source for P4 server.",
-                                "constraints": {
-                                    "allowedValues": [
-                                        {
-                                            "label": "Use existing key stored in Azure",
-                                            "value": "existing"
-                                        },
-                                        {
-                                            "label": "Use existig public key",
-                                            "value": "public"
-                                        }
-                                    ],
-                                    "validations": [
-                                        {
-                                            "isValid": "[not(empty(steps('PerforceServerConfig').linuxCredential.adminExistKey.name))]",
-                                            "message": "You need to select a key to proceed"
-                                        }
-                                    ],
-                                    "required": true
-                                },
-                                "visible": true
-                            },
-                            {
-                                "name": "adminUsername",
-                                "type": "Microsoft.Compute.UserNameTextBox",
-                                "label": "User name",
-                                "defaultValue": "centos",
-                                "toolTip": "Specify a user for accessing the virtual machines within your cluster. Must be a valid Ubuntu username",
-                                "constraints": {
-                                    "required": true,
-                                    "regex": "^(?!(?:adm|admin|audio|backup|bin|cdrom|crontab|daemon|dialout|dip|disk|fax|floppy|fuse|games|gnats|irc|kmem|landscape|libuuid|list|lp|mail|man|messagebus|mlocate|netdev|news|nobody|nogroup|operator|plugdev|proxy|root|sasl|shadow|src|ssh|sshd|staff|sudo|sync|sys|syslog|tape|tty|users|utmp|uucp|video|voice|whoopsie|www\\-data)$)\\w+$",
-                                    "validationMessage": "Username must not be a reserved Ubuntu username"
-                                },
-                                "visible": false,
-                                "osPlatform": "Linux"
-                            },                            
-                            {
-                                "name": "adminExistKey",
-                                "type": "Microsoft.Solutions.ResourceSelector",
-                                "label": "Stored Keys",
-                                "resourceType": "Microsoft.Compute/sshPublicKeys",
-                                "toolTip": "Select new key pair stored in Azure",
-                                "options": {
-                                    "filter": {
-                                        "subscription": "onBasics",
-                                        "location": "onBasics"
-                                    }
-                                },
-                                "constraints":{
-                                    "required": true,
-                                    "regex": "/(?!^$)([^\\s])/",
-                                    "validationMessage": "You must select existing key to proceed."
-                                },
-                                "visible": "[equals(steps('PerforceServerConfig').linuxCredential.p4SSHSource, 'existing')]"
-                            },
-                            {
-                                "name": "adminPublicKey",
-                                "type": "Microsoft.Compute.CredentialsCombo",
-                                "label": {
-                                    "authenticationType": "Authentication type",
-                                    "password": "Password",
-                                    "confirmPassword": "Confirm password",
-                                    "sshPublicKey": "SSH public key for built-in user 'centos'"
-                                },
-                                "toolTip": {
-                                    "authenticationType": "Choose Authentication type Password or PublicKey(SSH).",
-                                    "password": "Enter the password for the specified user name.",
-                                    "sshPublicKey": "Copy Public key into field."
-                                },
-                                "options": {
-                                    "hidePassword": true,
-                                    "hideConfirmation": true
-                                },
-                                "constraints": {
-                                    "required": true,
-                                    "customValidationMessage": "The value must not be empty."
-                                },
-                                "osPlatform": "Linux",
-                                "visible": "[equals(steps('PerforceServerConfig').linuxCredential.p4SSHSource, 'public')]"
-                            }
-                        ]
-                    },
-                    {
                         "name": "p4FromScratchOrSnapshot",
                         "type": "Microsoft.Common.OptionsGroup",
                         "label": "Deploy from Scratch/Snapshot",
@@ -325,74 +331,45 @@
                     },
                     {
                         "name": "p4SnapshotIDArchive",
-                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "type": "Microsoft.Common.DropDown",
                         "label": "Snapshot for Archive",
-                        "resourceType": "Microsoft.Compute/snapshots",
-                        "options": {
-                            "filter": {
-                                "subscription": "onBasics",
-                                "location": "onBasics"
-                            }
-                        },
+                        "toolTip": "Select snapshot for Archive disk.",
                         "constraints": {
-                            "required": true,
-                            "regex": "/(?!^$)([^\\s])/",
-                            "validationMessage": "You must select existing snapshot to proceed."
-
+                            "allowedValues": "[map(basics('snapshotApi').value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
+                            "required": true
                         },
                         "visible": "[equals(steps('PerforceServerConfig').p4FromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDJournal",
-                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "type": "Microsoft.Common.DropDown",
                         "label": "Snapshot for Journal",
-                        "resourceType": "Microsoft.Compute/snapshots",
-                        "options": {
-                            "filter": {
-                                "subscription": "onBasics",
-                                "location": "onBasics"
-                            }
-                        },
+                        "toolTip": "Select snapshot for Journal disk.",
                         "constraints": {
-                            "required": true,
-                            "regex": "/(?!^$)([^\\s])/",
-                            "validationMessage": "You must select existing snapshot to proceed."
+                            "allowedValues": "[map(basics('snapshotApi').value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
+                            "required": true
                         },
                         "visible": "[equals(steps('PerforceServerConfig').p4FromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDLog",
-                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "type": "Microsoft.Common.DropDown",
                         "label": "Snapshot for Log",
-                        "resourceType": "Microsoft.Compute/snapshots",
-                        "options": {
-                            "filter": {
-                                "subscription": "onBasics",
-                                "location": "onBasics"
-                            }
-                        },
+                        "toolTip": "Select snapshot for Log disk.",
                         "constraints": {
-                            "required": true,
-                            "regex": "/(?!^$)([^\\s])/",
-                            "validationMessage": "You must select existing snapshot to proceed."
+                            "allowedValues": "[map(basics('snapshotApi').value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
+                            "required": true
                         },
                         "visible": "[equals(steps('PerforceServerConfig').p4FromScratchOrSnapshot, 'snapshot')]"
                     },
                     {
                         "name": "p4SnapshotIDMetadata",
-                        "type": "Microsoft.Solutions.ResourceSelector",
+                        "type": "Microsoft.Common.DropDown",
                         "label": "Snapshot for Metadata",
-                        "resourceType": "Microsoft.Compute/snapshots",
-                        "options": {
-                            "filter": {
-                                "subscription": "onBasics",
-                                "location": "onBasics"
-                            }
-                        },
+                        "toolTip": "Select snapshot for Metadata disk.",
                         "constraints": {
-                            "required": true,
-                            "regex": "/(?!^$)([^\\s])/",
-                            "validationMessage": "You must select existing snapshot to proceed."
+                            "allowedValues": "[map(basics('snapshotApi').value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
+                            "required": true
                         },
                         "visible": "[equals(steps('PerforceServerConfig').p4FromScratchOrSnapshot, 'snapshot')]"
                     },
@@ -628,13 +605,13 @@
                                 "label": "Hansoft instance type",
                                 "toolTip": "Select Hansoft VM SKU",
                                 "recommendedSizes": [
-                                    "Standard_D2_v2",
-                                    "Standard_D2_v4",
                                     "Standard_D4_v4",
+                                    "Standard_D2_v2",
                                     "Standard_D8_v4"
                                 ],
                                 "constraints": {
                                     "allowedSizes": [
+                                        "Standard_D2_v2",
                                         "Standard_D2s_v2",
                                         "Standard_D2s_v3",
                                         "Standard_D2as_v4",
@@ -749,8 +726,8 @@
                                 "label": "Swarm instance type",
                                 "toolTip": "Select Swarm VM SKU",
                                 "recommendedSizes": [
-                                    "Standard_D2_v2",
                                     "Standard_D2_v4",
+                                    "Standard_D2_v2",
                                     "Standard_D4_v4",
                                     "Standard_D8_v4"
                                 ],
@@ -869,7 +846,7 @@
                                 "label": "Windows instance type",
                                 "toolTip": "Select Windows Workstation VM SKU",
                                 "recommendedSizes": [
-                                    "Standard_D1_v2",
+                                    "Standard_NV12s_v3",
                                     "Standard_NV4as_v4",
                                     "Standard_NV8as_v4",
                                     "Standard_NV16as_v4",
@@ -971,6 +948,11 @@
             "environment": "[basics('environment')]",
             "primaryZone": "[parse(concat('\"',coalesce(basics('primaryZone'), ''),'\"'))]",
             "secondaryZone": "[parse(concat('\"',coalesce(basics('secondaryZone'), ''),'\"'))]",
+            "p4AdminUser": "[basics('linuxCredential').adminUsername]",
+            "p4SSHSource": "[basics('linuxCredential').p4SSHSource]",
+            "p4AdminKeyID": "[basics('linuxCredential').adminExistKey]",
+            "p4AdminAuthType": "[basics('linuxCredential').adminPublicKey.authenticationType]",
+            "p4AdminPublicKey": "[basics('linuxCredential').adminPublicKey.sshPublicKey]",
             "vnetNewOrExisting": "[steps('VirtualNetworkConfig').virtualNetwork.newOrExisting]",
             "vnetName": "[steps('VirtualNetworkConfig').virtualNetwork.name]",
             "vnetAddressPrefixes": "[steps('VirtualNetworkConfig').virtualNetwork.addressPrefixes]",
@@ -984,18 +966,13 @@
             "privateSubnet1": "[steps('VirtualNetworkConfig').virtualNetwork.subnets.subnet4.addressPrefix]",
             "vnetResourceGroupName": "[steps('VirtualNetworkConfig').virtualNetwork.resourceGroup]",
             "nsgIPRangeToPermit": "[steps('VirtualNetworkConfig').ipRangeToPermitFrom]",
-            "p4AdminUser": "[steps('PerforceServerConfig').linuxCredential.adminUsername]",
             "p4VMSize": "[steps('PerforceServerConfig').p4VMSize]",
             "p4PrivateAddress": "[steps('PerforceServerConfig').p4PrivateAddress]",
-            "p4SSHSource": "[steps('PerforceServerConfig').linuxCredential.p4SSHSource]",
-            "p4AdminKeyID": "[steps('PerforceServerConfig').linuxCredential.adminExistKey.id]",
-            "p4AdminAuthType": "[steps('PerforceServerConfig').linuxCredential.adminPublicKey.authenticationType]",
-            "p4AdminPublicKey": "[steps('PerforceServerConfig').linuxCredential.adminPublicKey.sshPublicKey]",
             "p4FromScratchOrSnapshot": "[steps('PerforceServerConfig').p4FromScratchOrSnapshot]",
-            "p4SnapshotIDArchive": "[steps('PerforceServerConfig').p4SnapshotIDArchive.id]",
-            "p4SnapshotIDJournal": "[steps('PerforceServerConfig').p4SnapshotIDJournal.id]",
-            "p4SnapshotIDLog": "[steps('PerforceServerConfig').p4SnapshotIDLog.id]",
-            "p4SnapshotIDMetadata": "[steps('PerforceServerConfig').p4SnapshotIDMetadata.id]",
+            "p4SnapshotIDArchive": "[steps('PerforceServerConfig').p4SnapshotIDArchive]",
+            "p4SnapshotIDJournal": "[steps('PerforceServerConfig').p4SnapshotIDJournal]",
+            "p4SnapshotIDLog": "[steps('PerforceServerConfig').p4SnapshotIDLog]",
+            "p4SnapshotIDMetadata": "[steps('PerforceServerConfig').p4SnapshotIDMetadata]",
             "depotDiskType": "[steps('PerforceServerConfig').depotDiskType]",
             "depotDiskSize": "[int(steps('PerforceServerConfig').depotDiskSize)]",
             "logDiskType": "[steps('PerforceServerConfig').logDiskType]",
