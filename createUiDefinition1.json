@@ -37,10 +37,10 @@
                 "defaultValue": "Zone_redundant",
                 "toolTip": "Select Zone to deploy primary site.",
                 "constraints": {
-                    "allowedValues": "[map(parse(replace(concat('[{\"label\":\"{{Zone_redundant}}\",\"value\":\"Zone-redundant\"},',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(entry.resourceType,'natgateways')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')), (item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
+                    "allowedValues": "[map(parse(replace(concat('[{\"label\":\"{{Zone_redundant}}\",\"value\":\"Zone-redundant\"},',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(entry.resourceType,'natgateways')),(item)=>item.zoneMappings)),(item1)=>equals(replace(toLower(item1.location),' ',''),coalesce(location(),''))),(item1)=>item1.zones)),(item1)=>parse(concat('{\"label\":\"', item1,'\",\"value\":\"', item1,'\"}' )))),1)), ',]',']')), (item1)=>parse(concat('{\"label\":\"', item1.label, '\",\"value\":\"', item1.value, '\"}')))]",
                     "required": true
                 },
-                "visible": "[not(empty(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(entry.resourceType,'natGateways')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),'')))))]"
+                "visible": "[not(empty(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(entry.resourceType,'natGateways')),(item)=>item.zoneMappings)),(item1)=>equals(replace(toLower(item1.location),' ',''),coalesce(location(),'')))))]"
             }
         ],
         "steps": [],
