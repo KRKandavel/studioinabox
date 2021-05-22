@@ -35,12 +35,12 @@
                 "type": "Microsoft.Common.DropDown",
                 "label": "Availability Zone (Primary)",
                 "defaultValue": "Zone_redundant",
-                "toolTip": "Select Region or Zone to deploy primary site.",
+                "toolTip": "Select Zone to deploy primary site.",
                 "constraints": {
                     "allowedValues": "[map(parse(replace(concat('[{\"label\":\"{{Zone_redundant}}\",\"value\":\"Zone-redundant\"},',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')), (item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
                     "required": true
                 },
-                "visible": "[not(empty(filter(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),'')))))]"
+                "visible": "[not(empty(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),'')))))]"
             }
         ],
         "steps": [],
