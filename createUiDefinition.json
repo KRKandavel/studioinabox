@@ -39,16 +39,7 @@
                 "defaultValue": "No redundancy",
                 "toolTip": "Select Region or Zone to deploy primary site.",
                 "constraints": {
-                    "allowedValues": [
-                        {
-                          "label": "{{basic}}",
-                          "value": "Basic"
-                        },
-                        {
-                          "label": "{{standard}}",
-                          "value": "Standard"
-                        }
-                      ],
+                    "allowedValues": "[map(parse(replace(concat('[{\"label\":\"No redundancy\",\"value\":\"region\"},',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')),(item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
                     "required": true
                 },
                 "visible": true
