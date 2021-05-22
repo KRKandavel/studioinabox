@@ -922,8 +922,6 @@
         "outputs": {
             "location": "[location()]",
             "environment": "[basics('environment')]",
-            "primaryZone": "[parse(concat('\"',coalesce(basics('primaryZone'), ''),'\"'))]",
-            "secondaryZone": "[parse(concat('\"',coalesce(basics('secondaryZone'), ''),'\"'))]",
             "p4AdminUser": "[basics('linuxCredential').adminUsername]",
             "p4SSHSource": "[basics('linuxCredential').p4SSHSource]",
             "p4AdminKeyID": "[basics('linuxCredential').adminExistKey]",
