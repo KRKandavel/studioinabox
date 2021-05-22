@@ -45,30 +45,6 @@
                 }
             },
             {
-                "name": "primaryZone",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Region / Zone (Primary)",
-                "defaultValue": "No redundancy",
-                "toolTip": "Select Region or Zone to deploy primary site.",
-                "constraints": {
-                    "allowedValues": "[map(parse(replace(concat('[{\"label\":\"No redundancy\",\"value\":\"region\"},',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')),(item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
-                    "required": true
-                },
-                "visible": true
-            },
-            {
-                "name": "secondaryZone",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Availability zone (Secondary)",
-                "defaultValue": "2",
-                "toolTip": "{{tooltipavalibilityzone}}",
-                "constraints": {
-                    "allowedValues": "[map(parse(replace(concat('[',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')),(item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
-                    "required": false
-                },
-                "visible": "[and(not(equals(basics('primaryZone'),'region')),not(empty(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))))))]"
-            },
-            {
                 "name": "linuxCredential",
                 "type": "Microsoft.Common.Section",
                 "label": "Linux Account Details",
