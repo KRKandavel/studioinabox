@@ -320,10 +320,10 @@
               "defaultValue": "Zone-redundant",
               "toolTip": "{{tooltipavalibilityzone}}",
               "constraints": {
-                  "allowedValues": "[map(parse(replace(concat('[{\"label\":\"{{Zone_redundant}}\",\"value\":\"Zone-redundant\"},',skip(string(map(first(map(filter(first(map(filter(steps('configuration').providersApi.resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')), (item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
+                  "allowedValues": "[pickZones('Microsoft.Compute', 'virtualMachines', location())]",
                 "required": true
               },
-              "visible": "[and(equals(basics('sku'),'Standard'),not(empty(filter(first(map(filter(steps('configuration').providersApi.resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))))))]"
+              "visible": true
             }
           ]
         },
