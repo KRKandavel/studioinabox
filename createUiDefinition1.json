@@ -1,0 +1,359 @@
+{
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+      "config":{
+          "basics":{
+              "description":"{{basicsIntroText}} [{{learnMore}}](https://go.microsoft.com/fwlink/p/?linkid=851114)"
+          }
+      },
+      "basics": [
+        {
+          "name": "sku",
+          "type": "Microsoft.Common.OptionsGroup",
+          "label": "{{sku}}",
+          "defaultValue": "{{basic}}",
+          "toolTip": "{{tooltipsku}} [{{learnMore}}](https://go.microsoft.com/fwlink/?linkid=2107163)",
+          "constraints": {
+            "allowedValues": [
+              {
+                "label": "{{basic}}",
+                "value": "Basic"
+              },
+              {
+                "label": "{{standard}}",
+                "value": "Standard"
+              }
+            ],
+            "required": true
+          },
+          "visible": true
+        }
+      ],
+      "steps": [
+        {
+          "name": "configuration",
+          "label": "{{configuration}}",
+          "elements": [
+            {
+              "name": "IPv4DnsNameAvailabilityApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                  "method": "GET",
+                  "path": "[concat(subscription().id, '/providers/Microsoft.Network/locations/', location(), '/CheckDnsNameAvailability?domainNameLabel=', if(empty(steps('configuration').dnsnamelabelipv4), 'placeholder', steps('configuration').dnsnamelabelipv4), '&api-version=2020-05-01')]"
+              }
+            },
+            {
+              "name": "IPv6DnsNameAvailabilityApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                  "method": "GET",
+                  "path": "[concat(subscription().id, '/providers/Microsoft.Network/locations/', location(), '/CheckDnsNameAvailability?domainNameLabel=', if(empty(steps('configuration').dnsnamelabelipv6), 'placeholder', steps('configuration').dnsnamelabelipv6) , '&api-version=2020-05-01')]"
+              }
+            },
+            {
+              "name": "IPv4NameApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                  "method": "GET",
+                  "path": "[concat(subscription().id, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/publicIPAddresses/', coalesce(steps('configuration').nameipv4, ''),'/?api-version=2020-05-01')]"
+              }
+            },
+            {
+              "name": "IPv6NameApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                  "method": "GET",
+                  "path": "[concat(subscription().id, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/publicIPAddresses/', coalesce(steps('configuration').nameipv6,''),'/?api-version=2020-05-01')]"
+              }
+            },
+            {
+              "name": "providersApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(subscription().id, '/providers/Microsoft.Network?api-version=2017-06-01')]"
+              }
+            },
+            {
+              "name": "ipversion",
+              "type": "Microsoft.Common.OptionsGroup",
+              "label": "{{ipversion}}",
+              "defaultValue": "{{ipversion_ipv4}}",
+              "toolTip": "{{tooltipipversion}} [{{learnMore}}](https://go.microsoft.com/fwlink/?linkid=2128156)",
+              "constraints": {
+                "allowedValues": [
+                  {
+                    "label": "{{ipversion_ipv4}}",
+                    "value": "IPv4"
+                  },
+                  {
+                    "label": "{{ipversion_ipv6}}",
+                    "value": "IPv6"
+                  },
+                  {
+                    "label": "{{ipversion_both}}",
+                    "value": "Both"
+                  }
+                ],
+                "required": true
+              },
+              "visible": true
+            },
+            {
+              "name": "infoboxSection",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                  {
+                      "name": "infoMessage",
+                      "type": "Microsoft.Common.InfoBox",
+                      "visible": "[equals(steps('configuration').ipversion, 'Both')]",
+                      "options": {
+                          "icon": "Info",
+                          "text": "{{infobox}}"
+                      }
+                  }
+              ],
+              "visible":"[equals(steps('configuration').ipversion, 'Both')]"
+            },        
+            {
+              "name": "sectionIPv4",
+              "type": "Microsoft.Common.Section",
+              "label": "{{ipv4configuration}}",
+              "elements": [],
+              "visible": "[or(equals(steps('configuration').ipversion, 'IPv4'), equals(steps('configuration').ipversion, 'Both')) ]"
+            },
+            {
+              "name": "nameipv4",
+              "type": "Microsoft.Common.TextBox",
+              "label": "{{name}}",
+              "constraints": {
+                "required": true,
+                "validations": [
+                  {
+                      "isValid": "[empty(steps('configuration').IPv4NameApi)]",
+                      "message": "{{nameNotAvailableMessage}}"
+                  },
+                  {					  
+                      "isValid": "[or(empty(steps('configuration').nameipv6),not(equals(steps('configuration').nameipv6,steps('configuration').nameipv4)))]",
+                      "message": "{{dupNameValidationMessage}}"
+                  },
+                  {
+                      "regex": "^[^_\\W]([\\w-.]{0,78}[\\w])?$",
+                      "message": "{{nameValidationMessage}}"
+                  }
+                ]
+              },
+              "visible": "[or(equals(steps('configuration').ipversion, 'IPv4'), equals(steps('configuration').ipversion, 'Both'))]"
+            },
+            {
+              "name": "ipaddressassignmentipv4",
+              "type": "Microsoft.Common.OptionsGroup",
+              "label": "{{ipaddressassignment}}",
+              "defaultValue": "{{dynamic}}",
+              "constraints": {
+                "allowedValues": [
+                  {
+                    "label": "{{dynamic}}",
+                    "value": "Dynamic"
+                  },
+                  {
+                    "label": "{{static}}",
+                    "value": "Static"
+                  }
+                ],
+                "required": true
+              },
+              "visible": "[and(equals( basics('sku'), 'Basic'), or(equals(steps('configuration').ipversion, 'IPv4'), equals(steps('configuration').ipversion, 'Both')))]"
+            },
+            {
+              "name": "ipaddressassignmentipv4static",
+              "type": "Microsoft.Common.OptionsGroup",
+              "label": "{{ipaddressassignment}}",
+              "defaultValue": "{{static}}",
+              "constraints": {
+                "allowedValues": [
+                  {
+                    "label": "{{static}}",
+                    "value": "Static"
+                  }
+                ],
+                "required": true
+              },
+              "visible": "[and(equals( basics('sku'), 'Standard'),or(equals(steps('configuration').ipversion, 'IPv4'), equals(steps('configuration').ipversion, 'Both')))]"
+            },
+            {
+              "name": "idletimeoutipv4",
+              "type": "Microsoft.Common.TextBox",
+              "label": "{{idletimeout}}",
+              "defaultValue": "4",
+              "toolTip": "{{tooltipidletimeout}}",
+              "constraints": {
+                "required": true,
+                "regex": "^([4-9]|[1-2][0-9]|30)$",
+                "validationMessage": "{{idletimeoutvalidationmessage}}"
+              },
+              "visible": "[or(equals(steps('configuration').ipversion, 'IPv4'), equals(steps('configuration').ipversion, 'Both'))]"
+            },
+            {
+              "name": "dnsnamelabelipv4",
+              "type": "Microsoft.Common.TextBox",
+              "label": "{{dnsnamelabel}}",
+              "defaultValue": "",
+              "toolTip": "{{tooltipidnsnamelabel}}",
+              "constraints": {
+                "required": false,
+                "validations" : [
+                    {
+                      "isValid": "^$|^[a-z][a-z0-9-]{1,61}[a-z0-9]$",
+                      "message": "{{dnslabelvalidationmessage}}"
+                    },
+                    {
+                      "isValid": "[if(or(empty(subscription()),empty(steps('configuration').dnsnamelabelipv4)),true,steps('configuration').IPv4DnsNameAvailabilityApi.available)]",
+                      "message": "{{dnsnameNotAvailableMessage}}"
+                    }
+                ]
+              },
+              "visible": "[or(equals(steps('configuration').ipversion, 'IPv4'), equals(steps('configuration').ipversion, 'Both'))]"
+            },
+  
+            {
+              "name": "sectionIPv6",
+              "type": "Microsoft.Common.Section",
+              "label": "{{ipv6configuration}}",
+              "elements": [],
+              "visible": "[or(equals(steps('configuration').ipversion, 'IPv6'), equals(steps('configuration').ipversion, 'Both'))]"
+            },
+            {
+              "name": "nameipv6",
+              "type": "Microsoft.Common.TextBox",
+              "label": "{{name}}",
+              "constraints": {
+                "required": true,
+                "validations": [
+                  {
+                      "isValid": "[empty(steps('configuration').IPv6NameApi)]",
+                      "message": "{{nameNotAvailableMessage}}"
+                  },
+                  {					  
+                      "isValid": "[or(empty(steps('configuration').nameipv4),not(equals(steps('configuration').nameipv6,steps('configuration').nameipv4)))]",
+                      "message": "{{dupNameValidationMessage}}"
+                  },
+                  {
+                    "regex": "^[^_\\W]([\\w-.]{0,78}[\\w])?$",
+                    "message": "{{nameValidationMessage}}"
+                  }
+                ]
+              },
+              "visible": "[or(equals(steps('configuration').ipversion, 'IPv6'), equals(steps('configuration').ipversion, 'Both'))]"
+            },
+            {
+              "name": "ipaddressassignmentipv6dynamic",
+              "type": "Microsoft.Common.OptionsGroup",
+              "label": "{{ipaddressassignment}}",
+              "defaultValue": "{{dynamic}}",
+              "constraints": {
+                "allowedValues": [
+                  {
+                    "label": "{{dynamic}}",
+                    "value": "Dynamic"
+                  }
+                ],
+                "required": true
+              },
+              "visible": "[and(equals( basics('sku'), 'Basic'), or(equals(steps('configuration').ipversion, 'IPv6'), equals(steps('configuration').ipversion, 'Both')))]"
+            },
+            {
+              "name": "ipaddressassignmentipv6static",
+              "type": "Microsoft.Common.OptionsGroup",
+              "label": "{{ipaddressassignment}}",
+              "defaultValue": "{{static}}",
+              "constraints": {
+                "allowedValues": [
+                  {
+                    "label": "{{static}}",
+                    "value": "Static"
+                  }
+                ],
+                "required": true
+              },
+              "visible": "[and(equals( basics('sku'), 'Standard'), or(equals(steps('configuration').ipversion, 'IPv6'), equals(steps('configuration').ipversion, 'Both')))]"
+            },
+            {
+              "name": "idletimeoutipv6",
+              "type": "Microsoft.Common.TextBox",
+              "label": "{{idletimeout}}",
+              "defaultValue": "4",
+              "toolTip": "{{tooltipidletimeout}}",
+              "constraints": {
+                "required": true,
+                "regex": "^([4-9]|[1-2][0-9]|30)$",
+                "validationMessage": "{{idletimeoutvalidationmessage}}"
+              },
+              "visible": "[or(equals(steps('configuration').ipversion, 'IPv6'), equals(steps('configuration').ipversion, 'Both'))]"
+            },
+            {
+              "name": "dnsnamelabelipv6",
+              "type": "Microsoft.Common.TextBox",
+              "label": "{{dnsnamelabel}}",
+              "defaultValue": "",
+              "toolTip": "tooltipidnsnamelabel",
+              "constraints": {
+                "required": false,
+                "validations" : [
+                  {
+                    "isValid": "^$|^[a-z][a-z0-9-]{1,61}[a-z0-9]$",
+                    "message": "{{dnslabelvalidationmessage}}"
+                  },
+                  {
+                    "isValid": "[if(or(empty(subscription()),empty(steps('configuration').dnsnamelabelipv6)),true,steps('configuration').IPv6DnsNameAvailabilityApi.available)]",
+                    "message": "{{dnsnameNotAvailableMessage}}"
+                  }
+                ]
+              },
+              "visible": "[or(equals(steps('configuration').ipversion, 'IPv6'), equals(steps('configuration').ipversion, 'Both'))]"
+            },
+            {
+              "name": "avalibilityzone",
+              "type": "Microsoft.Common.DropDown",
+              "label": "{{Zone_redundant}}",
+              "defaultValue": "Zone-redundant",
+              "toolTip": "{{tooltipavalibilityzone}}",
+              "constraints": {
+                  "allowedValues": "[map(parse(replace(concat('[{\"label\":\"{{Zone_redundant}}\",\"value\":\"Zone-redundant\"},',skip(string(map(first(map(filter(first(map(filter(steps('configuration').providersApi.resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')), (item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
+                "required": true
+              },
+              "visible": "[and(equals(basics('sku'),'Standard'),not(empty(filter(first(map(filter(steps('configuration').providersApi.resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))))))]"
+            }
+          ]
+        },
+        {
+          "name": "tags",
+          "label": "{{tags}}",
+          "elements": [
+            {
+              "name": "tagsControl",
+              "type": "Microsoft.Common.TagsByResource",
+              "resources": ["Microsoft.Network/publicIPAddresses"]
+            }
+          ]
+        }
+      ],
+      "outputs": {
+        "location": "[location()]",
+        "sku": "[basics('sku')]",
+        "name": "[coalesce(steps('configuration').nameipv4,'')]",
+        "publicIPAllocationMethod": "[coalesce(steps('configuration').ipaddressassignmentipv4,steps('configuration').ipaddressassignmentipv4static, 'Static')]",
+        "idleTimeoutInMinutes": "[int(coalesce(steps('configuration').idletimeoutipv4, '0'))]",
+        "publicIpAddressVersion": "IPv4",
+        "domainNameLabel": "[coalesce(steps('configuration').dnsnamelabelipv4,'')]",
+        "secondName": "[coalesce(steps('configuration').nameipv6,'')]",
+        "secondPublicIPAllocationMethod": "[coalesce(steps('configuration').ipaddressassignmentipv6dynamic, steps('configuration').ipaddressassignmentipv6static, 'Static')]",
+        "secondPublicIpAddressVersion": "IPv6",
+        "ipv6IdleTimeout": "[int(coalesce(steps('configuration').idletimeoutipv6,'0'))]",
+        "ipv6DomainName": "[coalesce(steps('configuration').dnsnamelabelipv6,'')]",
+        "zones": "[parse(concat('[\"',coalesce(steps('configuration').avalibilityzone, 'Zone-redundant'),'\"]'))]",
+        "tagsByResource": "[steps('tags').tagsControl]"
+      }
+    }
+  }
