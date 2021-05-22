@@ -10,8 +10,7 @@
                 "request": {
                     "method": "GET",
                     "path": "[concat(subscription().id, '/providers/Microsoft.Compute/sshPublicKeys?api-version=2020-12-01')]",
-                    "body": {
-                    }
+                    "body": {}
                 }
             },
             {
@@ -20,8 +19,7 @@
                 "request": {
                     "method": "GET",
                     "path": "[concat(subscription().id, '/providers/Microsoft.Compute/snapshots?api-version=2020-12-01')]",
-                    "body": {
-                    }
+                    "body": {}
                 }
             },
             {
@@ -35,18 +33,17 @@
             {
                 "name": "primaryZone",
                 "type": "Microsoft.Common.DropDown",
-                "label": "Region / Zone (Primary)",
-                "defaultValue": "No redundancy",
+                "label": "Availability Zone (Primary)",
+                "defaultValue": "Zone_redundant",
                 "toolTip": "Select Region or Zone to deploy primary site.",
                 "constraints": {
-                    "allowedValues": "[map(parse(replace(concat('[{\"label\":\"No redundancy\",\"value\":\"region\"},',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')),(item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
+                    "allowedValues": "[map(parse(replace(concat('[{\"label\":\"{{Zone_redundant}}\",\"value\":\"Zone-redundant\"},',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')), (item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
                     "required": true
                 },
-                "visible": true
+                "visible": "[not(empty(filter(first(map(filter(steps('configuration').providersApi.resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),'')))))]"
             }
         ],
         "steps": [],
-        "outputs": {
-        }
+        "outputs": {}
     }
 }
