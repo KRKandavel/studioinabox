@@ -15,7 +15,7 @@
         ],
         "steps": [],
         "outputs": {
-            "location": "[location()]",
+            "location": "[location()]"
         }
     }
 }
