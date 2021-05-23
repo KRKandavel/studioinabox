@@ -40,7 +40,7 @@
                     "allowedValues": "[map(parse(replace(concat('[{\"label\":\"{{Zone_redundant}}\",\"value\":\"Zone-redundant\"},',skip(string(map(first(map(filter(first(map(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings)),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),''))),(item)=>item.zones)),(item)=>parse(concat('{\"label\":\"', item,'\",\"value\":\"', item,'\"}' )))),1)), ',]',']')), (item)=>parse(concat('{\"label\":\"', item.label, '\",\"value\":\"', item.value, '\"}')))]",
                     "required": true
                 },
-                "visible": "[not(empty(filter(first(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'natgateways'),(zone)=>zone.zoneMappings),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),'')))))]"
+                "visible": "[not(empty(filter(first(filter(basics('providersApi').resourceTypes,(entry)=>equals(toLower(entry.resourceType),'publicipaddresses')),(item)=>item.zoneMappings),(item)=>equals(replace(toLower(item.location),' ',''),coalesce(location(),'')))))]"
             }
         ],
         "steps": [],
