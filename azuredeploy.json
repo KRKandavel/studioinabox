@@ -433,6 +433,68 @@
         }
     },
     "variables": {
+        "siabP4PreUserData": "[concat(
+'',            
+            parameters('p4PreUserData'),
+''
+)]",
+        "siabP4PostUserData": "[concat(
+'
+mv /opt/perforce/etc/swarm-trigger.conf /opt/perforce/etc/swarm-trigger-original.conf
+cat <<EOT >> /opt/perforce/etc/swarm-trigger.conf
+  SWARM_HOST=''http:////10.0.0.71''
+  SWARM_TOKEN=''C02E4B53-A155-920C-A152-988C37D2F700''
+  ADMIN_USER=''''
+  ADMIN_TICKET_FILE=''''
+  P4_PORT=''''
+  P4=''p4''
+  EXEMPT_FILE_COUNT=0
+  EXEMPT_EXTENSIONS=''''
+  VERIFY_SSL=1
+  TIMEOUT=30
+  IGNORE_TIMEOUT=0
+  IGNORE_NOSERVER=0
+EOT                  
+',            
+            parameters('p4PostUserData'),
+''
+)]",
+
+        "P4PreUserData": "[concat(
+'',            
+            variables('siabP4PreUserData'),
+''
+)]",
+        "P4PostUserData": "[concat(
+'
+sudo mkdir -p /opt/perforce/etc 
+sudo touch /opt/perforce/etc/swarm-trigger.conf 
+mv /opt/perforce/etc/swarm-trigger.conf /opt/perforce/etc/swarm-trigger-original.conf
+cat <<EOT >> /opt/perforce/etc/swarm-trigger.conf
+  SWARM_HOST=''http:////10.0.0.71''
+  SWARM_TOKEN=''C02E4B53-A155-920C-A152-988C37D2F700''
+  ADMIN_USER=''''
+  ADMIN_TICKET_FILE=''''
+  P4_PORT=''''
+  P4=''p4''
+  EXEMPT_FILE_COUNT=0
+  EXEMPT_EXTENSIONS=''''
+  VERIFY_SSL=1
+  TIMEOUT=30
+  IGNORE_TIMEOUT=0
+  IGNORE_NOSERVER=0
+EOT                  
+',            
+            variables('siabP4PostUserData'),
+''
+)]",
+
+        "p4CustomData": "[concat(
+            variables('P4PreUserData'), '\n', 
+            variables('P4PostUserData'), '\n'
+        )]",
+        "p4CmdToRun": "sudo cp /var/lib/cloud/instance/user-data.txt /var/lib/cloud/instance/user-data.sh;sed -e \"s/\r//g\" /var/lib/cloud/instance/user-data.sh > /tmp/user-data.sh;sudo bash /tmp/user-data.sh >> /var/log/userdata.log 2>&1"
+
     },
     "resources": [
         {
